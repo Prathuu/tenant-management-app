@@ -22,8 +22,16 @@ Built for landlords, PG owners, and small property managers.
 
 ## Setup
 
-### Backend
+### Install dependencies (from project root)
+```bash
+pnpm install
+
+### Backend (api)
 ```bash
 cd apps/api
-npm install
-npm run dev
+pnpm start
+
+### Frontend (web)
+```bash
+cd apps/web
+pnpm run dev
