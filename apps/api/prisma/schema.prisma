@@ -1,0 +1,175 @@
+// ===============================
+// Prisma setup
+// ===============================
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ===============================
+// ENUMS
+// ===============================
+enum WaterSource {
+  MUNICIPAL
+  BOREWELL
+  BOTH
+}
+
+enum PersonRelation {
+  SELF
+  SPOUSE
+  CHILD
+  PARENT
+  SIBLING
+  OTHER
+}
+
+enum BillStatus {
+  UNPAID
+  PARTIAL
+  PAID
+}
+
+enum PaymentType {
+  RENT
+  ELECTRICITY
+  WATER
+  OTHER
+}
+
+enum PaymentStatus {
+  PENDING
+  SUCCESS
+  FAILED
+}
+
+// ===============================
+// MODELS
+// ===============================
+
+model Building {
+  id      Int    @id @default(autoincrement())
+  name    String
+  address String
+
+  ownerName  String
+  ownerPhone String?
+  ownerEmail String?
+
+  yearBuilt         Int?
+  hasLift           Boolean      @default(false)
+  parkingSlots      Int?
+  powerBackup       Boolean      @default(false)
+  waterSource       WaterSource?
+  securityAvailable Boolean      @default(false)
+
+  createdAt DateTime @default(now())
+
+  floors Floor[]
+}
+
+model Floor {
+  id        Int      @id @default(autoincrement())
+  name      String
+  code      Int
+  createdAt DateTime @default(now())
+
+  buildingId Int
+  building   Building @relation(fields: [buildingId], references: [id])
+
+  rooms Room[]
+
+  @@unique([buildingId, code])
+}
+
+model Room {
+  id         Int      @id @default(autoincrement())
+  roomNumber String
+  baseRent   Int
+  createdAt  DateTime @default(now())
+
+  floorId Int
+  floor   Floor @relation(fields: [floorId], references: [id])
+
+  tenantRooms TenantRoom[]
+
+  @@unique([floorId, roomNumber])
+}
+
+model Tenant {
+  id        Int      @id @default(autoincrement())
+  fullName  String
+  phone     String
+  email     String?
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+
+  persons  Person[]
+  rooms    TenantRoom[]
+  payments Payment[]
+  bills    Bill[]
+}
+
+model Person {
+  id        Int             @id @default(autoincrement())
+  fullName  String
+  age       Int?
+  relation  PersonRelation?
+  createdAt DateTime        @default(now())
+
+  tenantId Int
+  tenant   Tenant @relation(fields: [tenantId], references: [id])
+}
+
+model TenantRoom {
+  id        Int       @id @default(autoincrement())
+  startDate DateTime
+  endDate   DateTime?
+
+  agreedRent Int
+
+  tenantId Int
+  tenant   Tenant @relation(fields: [tenantId], references: [id])
+
+  roomId Int
+  room   Room @relation(fields: [roomId], references: [id])
+
+  @@unique([tenantId, roomId, startDate])
+  @@index([tenantId])
+  @@index([roomId])
+}
+
+model Bill {
+  id          Int @id @default(autoincrement())
+  month       Int
+  year        Int
+  totalAmount Int
+
+  status     BillStatus @default(UNPAID)
+  paidAmount Int        @default(0)
+
+  tenantId Int
+  tenant   Tenant @relation(fields: [tenantId], references: [id])
+
+  createdAt DateTime @default(now())
+
+  @@unique([tenantId, month, year])
+  @@index([tenantId])
+}
+
+model Payment {
+  id        Int           @id @default(autoincrement())
+  amount    Int
+  type      PaymentType
+  status    PaymentStatus
+  createdAt DateTime      @default(now())
+
+  tenantId Int
+  tenant   Tenant @relation(fields: [tenantId], references: [id])
+
+  @@index([tenantId])
+}
