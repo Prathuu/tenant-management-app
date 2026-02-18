@@ -1,19 +1,9 @@
 import { Module } from '@nestjs/common';
-import { TenantService } from './tenant.service';
 import { TenantController } from './tenant.controller';
+import { TenantService } from './tenant.service';
 
-/**
- * TenantModule
- * -------------
- * Handles:
- * - Tenant creation
- * - Person (family / roommates) management
- * - Room occupancy queries
- *
- * PrismaService is global, so no need to import PrismaModule here.
- */
 @Module({
   controllers: [TenantController],
-  providers: [TenantService],
+  providers: [TenantService]
 })
 export class TenantModule {}
