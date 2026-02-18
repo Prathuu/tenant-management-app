@@ -1,171 +1,170 @@
 import {
   PrismaClient,
-  PersonRelation,
   WaterSource,
+  InvoiceStatus,
   PaymentType,
-  BillStatus,
+  PaymentStatus,
+  PersonRelation,
 } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
-async function seedAvengers() {
+const BILL_MONTH = 1;
+const BILL_YEAR = 2026;
+
+async function createBuildingWithTenants(
+  buildingName: string,
+  ownerName: string,
+  tenantsData: { name: string; phone: string }[],
+) {
   const building = await prisma.building.create({
     data: {
-      name: 'Stark Tower',
-      address: '200 Park Avenue, New York',
-      ownerName: 'Tony Stark',
-      hasLift: true,
-      parkingSlots: 25,
-      powerBackup: true,
+      name: buildingName,
+      address: `${buildingName} Address`,
+      ownerName,
       waterSource: WaterSource.BOTH,
+      hasLift: true,
       securityAvailable: true,
-      yearBuilt: 2012,
+      powerBackup: true,
     },
   });
 
-  const floors = await Promise.all([
-    prisma.floor.create({ data: { name: 'GROUND', code: 0, buildingId: building.id } }),
-    prisma.floor.create({ data: { name: 'SECOND', code: 2, buildingId: building.id } }),
-    prisma.floor.create({ data: { name: 'THIRD', code: 3, buildingId: building.id } }),
-    prisma.floor.create({ data: { name: 'FOURTH', code: 4, buildingId: building.id } }),
-  ]);
+  const floors = await Promise.all(
+    [0, 1, 2].map((code) =>
+      prisma.floor.create({
+        data: {
+          name: code === 0 ? 'GROUND' : `FLOOR ${code}`,
+          code,
+          buildingId: building.id,
+        },
+      }),
+    ),
+  );
 
   const rooms: any[] = [];
+
   for (const floor of floors) {
     for (let i = 1; i <= 3; i++) {
-      rooms.push(
-        await prisma.room.create({
-          data: {
-            roomNumber:
-              floor.code === 0
-                ? `00${i}`
-                : `${floor.code}${String(i).padStart(2, '0')}`,
-            baseRent: 22000 + floor.code * 3000,
-            floorId: floor.id,
-          },
-        }),
-      );
+      const room = await prisma.room.create({
+        data: {
+          roomNumber: `${floor.code}${String(i).padStart(2, '0')}`,
+          baseRent: 20000 + floor.code * 5000,
+          floorId: floor.id,
+        },
+      });
+
+      const meter = await prisma.meter.create({
+        data: {
+          meterNumber: `${buildingName}-${room.roomNumber}`,
+          roomId: room.id,
+        },
+      });
+
+      rooms.push({ room, meter });
     }
   }
 
-  const tenants = await Promise.all([
-    prisma.tenant.create({ data: { fullName: 'Tony Stark', phone: '9000000001' } }),
-    prisma.tenant.create({ data: { fullName: 'Steve Rogers', phone: '9000000002' } }),
-    prisma.tenant.create({ data: { fullName: 'Natasha Romanoff', phone: '9000000003' } }),
-    prisma.tenant.create({ data: { fullName: 'Bruce Banner', phone: '9000000004' } }),
-    prisma.tenant.create({ data: { fullName: 'Peter Parker', phone: '9000000005' } }),
-  ]);
+  const tenants = [];
 
-  await prisma.person.createMany({
-    data: [
-      { fullName: 'Pepper Potts', relation: PersonRelation.SPOUSE, tenantId: tenants[0].id },
-      { fullName: 'May Parker', relation: PersonRelation.PARENT, tenantId: tenants[4].id },
-      { fullName: 'MJ Watson', relation: PersonRelation.SPOUSE, tenantId: tenants[4].id },
-    ],
-  });
-
-  await prisma.tenantRoom.createMany({
-    data: [
-      { tenantId: tenants[0].id, roomId: rooms[0].id, agreedRent: 65000, startDate: new Date() },
-      { tenantId: tenants[0].id, roomId: rooms[1].id, agreedRent: 55000, startDate: new Date() },
-
-      { tenantId: tenants[1].id, roomId: rooms[3].id, agreedRent: 22000, startDate: new Date() },
-
-      { tenantId: tenants[2].id, roomId: rooms[4].id, agreedRent: 26000, startDate: new Date() },
-
-      { tenantId: tenants[3].id, roomId: rooms[5].id, agreedRent: 24000, startDate: new Date() },
-
-      { tenantId: tenants[4].id, roomId: rooms[6].id, agreedRent: 18000, startDate: new Date() },
-    ],
-  });
-
-  for (const tenant of tenants) {
-    const rooms = await prisma.tenantRoom.findMany({
-      where: { tenantId: tenant.id, endDate: null },
+  for (const t of tenantsData) {
+    const tenant = await prisma.tenant.create({
+      data: {
+        fullName: t.name,
+        phone: t.phone,
+      },
     });
 
-    const total = rooms.reduce((s, r) => s + r.agreedRent, 0);
+    tenants.push(tenant);
+  }
 
-    await prisma.bill.create({
+  for (let i = 0; i < tenants.length; i++) {
+    const tenant = tenants[i];
+    const roomData = rooms[i];
+
+    const tenantRoom = await prisma.tenantRoom.create({
       data: {
         tenantId: tenant.id,
-        month: 1,
-        year: 2026,
-        totalAmount: total,
-        status: BillStatus.UNPAID,
+        roomId: roomData.room.id,
+        agreedRent: roomData.room.baseRent,
+        startDate: new Date(),
+      },
+    });
+
+    await prisma.lease.create({
+      data: {
+        tenantId: tenant.id,
+        tenantRoomId: tenantRoom.id,
+        startDate: new Date(),
+        endDate: new Date(new Date().setFullYear(new Date().getFullYear() + 1)),
+        rentAmount: roomData.room.baseRent,
+        securityDeposit: roomData.room.baseRent * 2,
+        depositPaid: true,
+      },
+    });
+
+    const electricityAmount = Math.floor(Math.random() * 3000) + 1000;
+
+    const invoice = await prisma.invoice.create({
+      data: {
+        tenantId: tenant.id,
+        billingMonth: BILL_MONTH,
+        billingYear: BILL_YEAR,
+        dueDate: new Date(),
+        subtotal: roomData.room.baseRent + electricityAmount,
+        totalAmount: roomData.room.baseRent + electricityAmount,
+        status: InvoiceStatus.UNPAID,
+
+        items: {
+          create: [
+            {
+              description: 'Rent',
+              amount: roomData.room.baseRent,
+              type: PaymentType.RENT,
+            },
+            {
+              description: 'Electricity',
+              amount: electricityAmount,
+              type: PaymentType.ELECTRICITY,
+            },
+          ],
+        },
+      },
+    });
+
+    await prisma.payment.create({
+      data: {
+        tenantId: tenant.id,
+        invoiceId: invoice.id,
+        amount: roomData.room.baseRent,
+        type: PaymentType.RENT,
+        status: PaymentStatus.SUCCESS,
       },
     });
   }
 }
 
-async function seedJusticeLeague() {
-  const building = await prisma.building.create({
-    data: {
-      name: 'Wayne Manor Residences',
-      address: '1007 Mountain Drive, Gotham',
-      ownerName: 'Bruce Wayne',
-      hasLift: true,
-      parkingSlots: 30,
-      powerBackup: true,
-      waterSource: WaterSource.BOTH,
-      securityAvailable: true,
-      yearBuilt: 1995,
-    },
-  });
-
-  const floors = await Promise.all([
-    prisma.floor.create({ data: { name: 'GROUND', code: 0, buildingId: building.id } }),
-    prisma.floor.create({ data: { name: 'SECOND', code: 2, buildingId: building.id } }),
-    prisma.floor.create({ data: { name: 'THIRD', code: 3, buildingId: building.id } }),
-  ]);
-
-  const rooms: any[] = [];
-  for (const floor of floors) {
-    for (let i = 1; i <= 2; i++) {
-      rooms.push(
-        await prisma.room.create({
-          data: {
-            roomNumber:
-              floor.code === 0
-                ? `00${i}`
-                : `${floor.code}${String(i).padStart(2, '0')}`,
-            baseRent: 20000 + floor.code * 2500,
-            floorId: floor.id,
-          },
-        }),
-      );
-    }
-  }
-
-  const tenants = await Promise.all([
-    prisma.tenant.create({ data: { fullName: 'Bruce Wayne', phone: '9000000101' } }),
-    prisma.tenant.create({ data: { fullName: 'Clark Kent', phone: '9000000102' } }),
-    prisma.tenant.create({ data: { fullName: 'Diana Prince', phone: '9000000103' } }),
-    prisma.tenant.create({ data: { fullName: 'Barry Allen', phone: '9000000104' } }),
-  ]);
-
-  await prisma.person.createMany({
-    data: [
-      { fullName: 'Alfred Pennyworth', relation: PersonRelation.PARENT, tenantId: tenants[0].id },
-      { fullName: 'Lois Lane', relation: PersonRelation.SPOUSE, tenantId: tenants[1].id },
-      { fullName: 'Steve Trevor', relation: PersonRelation.SPOUSE, tenantId: tenants[2].id },
-    ],
-  });
-
-  await prisma.tenantRoom.createMany({
-    data: [
-      { tenantId: tenants[0].id, roomId: rooms[0].id, agreedRent: 70000, startDate: new Date() },
-      { tenantId: tenants[1].id, roomId: rooms[2].id, agreedRent: 26000, startDate: new Date() },
-      { tenantId: tenants[2].id, roomId: rooms[3].id, agreedRent: 30000, startDate: new Date() },
-      { tenantId: tenants[3].id, roomId: rooms[4].id, agreedRent: 18000, startDate: new Date() },
-    ],
-  });
-}
-
 async function main() {
-  await seedAvengers();
-  await seedJusticeLeague();
-  console.log('🦸 Avengers + 🦇 Justice League FULL dataset seeded');
+  console.log('Seeding Avengers...');
+
+  await createBuildingWithTenants('Stark Tower', 'Tony Stark', [
+    { name: 'Tony Stark', phone: '9000000001' },
+    { name: 'Steve Rogers', phone: '9000000002' },
+    { name: 'Natasha Romanoff', phone: '9000000003' },
+    { name: 'Bruce Banner', phone: '9000000004' },
+    { name: 'Peter Parker', phone: '9000000005' },
+  ]);
+
+  console.log('Seeding Justice League...');
+
+  await createBuildingWithTenants('Wayne Manor', 'Bruce Wayne', [
+    { name: 'Bruce Wayne', phone: '9000000101' },
+    { name: 'Clark Kent', phone: '9000000102' },
+    { name: 'Diana Prince', phone: '9000000103' },
+    { name: 'Barry Allen', phone: '9000000104' },
+    { name: 'Arthur Curry', phone: '9000000105' },
+  ]);
+
+  console.log('Seeding complete.');
 }
 
 main()

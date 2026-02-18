@@ -13,6 +13,7 @@ datasource db {
 // ===============================
 // ENUMS
 // ===============================
+
 enum WaterSource {
   MUNICIPAL
   BOREWELL
@@ -28,7 +29,7 @@ enum PersonRelation {
   OTHER
 }
 
-enum BillStatus {
+enum InvoiceStatus {
   UNPAID
   PARTIAL
   PAID
@@ -38,6 +39,8 @@ enum PaymentType {
   RENT
   ELECTRICITY
   WATER
+  MAINTENANCE
+  PENALTY
   OTHER
 }
 
@@ -47,20 +50,25 @@ enum PaymentStatus {
   FAILED
 }
 
+enum MaintenanceStatus {
+  OPEN
+  IN_PROGRESS
+  RESOLVED
+}
+
 // ===============================
-// MODELS
+// BUILDING STRUCTURE
 // ===============================
 
 model Building {
-  id      Int    @id @default(autoincrement())
-  name    String
-  address String
+  id        Int      @id @default(autoincrement())
+  name      String
+  address   String
 
   ownerName  String
   ownerPhone String?
   ownerEmail String?
 
-  yearBuilt         Int?
   hasLift           Boolean      @default(false)
   parkingSlots      Int?
   powerBackup       Boolean      @default(false)
@@ -68,6 +76,8 @@ model Building {
   securityAvailable Boolean      @default(false)
 
   createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+  deletedAt DateTime?
 
   floors Floor[]
 }
@@ -76,10 +86,13 @@ model Floor {
   id        Int      @id @default(autoincrement())
   name      String
   code      Int
-  createdAt DateTime @default(now())
 
   buildingId Int
   building   Building @relation(fields: [buildingId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+  deletedAt DateTime?
 
   rooms Room[]
 
@@ -87,50 +100,66 @@ model Floor {
 }
 
 model Room {
-  id         Int      @id @default(autoincrement())
+  id         Int    @id @default(autoincrement())
   roomNumber String
-  baseRent   Int
-  createdAt  DateTime @default(now())
+  baseRent   Float
 
   floorId Int
   floor   Floor @relation(fields: [floorId], references: [id])
+
+  isOccupied Boolean @default(false)
+  maintenanceRequests MaintenanceRequest[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+  deletedAt DateTime?
+
+  meter Meter?
 
   tenantRooms TenantRoom[]
 
   @@unique([floorId, roomNumber])
 }
 
-model Tenant {
-  id        Int      @id @default(autoincrement())
-  fullName  String
-  phone     String
-  email     String?
-  isActive  Boolean  @default(true)
-  createdAt DateTime @default(now())
+// ===============================
+// TENANT & OCCUPANCY
+// ===============================
 
-  persons  Person[]
-  rooms    TenantRoom[]
+model Tenant {
+  id       Int     @id @default(autoincrement())
+  fullName String
+  phone    String
+  email    String?
+
+  isActive Boolean @default(true)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+  deletedAt DateTime?
+
+  maintenanceRequests MaintenanceRequest[]
+  persons Person[]
+  tenantRooms TenantRoom[]
+  leases Lease[]
+  invoices Invoice[]
   payments Payment[]
-  bills    Bill[]
 }
 
 model Person {
-  id        Int             @id @default(autoincrement())
+  id        Int            @id @default(autoincrement())
   fullName  String
   age       Int?
   relation  PersonRelation?
-  createdAt DateTime        @default(now())
 
   tenantId Int
   tenant   Tenant @relation(fields: [tenantId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
 }
 
 model TenantRoom {
-  id        Int       @id @default(autoincrement())
-  startDate DateTime
-  endDate   DateTime?
-
-  agreedRent Int
+  id Int @id @default(autoincrement())
 
   tenantId Int
   tenant   Tenant @relation(fields: [tenantId], references: [id])
@@ -138,38 +167,169 @@ model TenantRoom {
   roomId Int
   room   Room @relation(fields: [roomId], references: [id])
 
-  @@unique([tenantId, roomId, startDate])
+  startDate DateTime
+  endDate   DateTime?
+
+  agreedRent Float
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+
+  lease Lease?
+
   @@index([tenantId])
   @@index([roomId])
 }
 
-model Bill {
-  id          Int @id @default(autoincrement())
-  month       Int
-  year        Int
-  totalAmount Int
+// ===============================
+// LEASE SYSTEM
+// ===============================
 
-  status     BillStatus @default(UNPAID)
-  paidAmount Int        @default(0)
+model Lease {
+  id Int @id @default(autoincrement())
 
   tenantId Int
   tenant   Tenant @relation(fields: [tenantId], references: [id])
+
+  tenantRoomId Int @unique
+  tenantRoom   TenantRoom @relation(fields: [tenantRoomId], references: [id])
+
+  startDate DateTime
+  endDate   DateTime
+
+  rentAmount Float
+
+  securityDeposit Float
+  depositPaid Boolean @default(false)
+  depositRefunded Boolean @default(false)
+
+  noticePeriodDays Int @default(30)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+}
+
+// ===============================
+// METER SYSTEM
+// ===============================
+
+model Meter {
+  id Int @id @default(autoincrement())
+
+  meterNumber String @unique
+
+  roomId Int @unique
+  room   Room @relation(fields: [roomId], references: [id])
+
+  isActive Boolean @default(true)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+
+  readings MeterReading[]
+}
+
+model MeterReading {
+  id Int @id @default(autoincrement())
+
+  meterId Int
+  meter   Meter @relation(fields: [meterId], references: [id])
+
+  reading Int
+  readingDate DateTime
 
   createdAt DateTime @default(now())
 
-  @@unique([tenantId, month, year])
-  @@index([tenantId])
+  @@unique([meterId, readingDate])
 }
 
-model Payment {
-  id        Int           @id @default(autoincrement())
-  amount    Int
-  type      PaymentType
-  status    PaymentStatus
-  createdAt DateTime      @default(now())
+// ===============================
+// BILLING SYSTEM
+// ===============================
+
+model Invoice {
+  id Int @id @default(autoincrement())
 
   tenantId Int
   tenant   Tenant @relation(fields: [tenantId], references: [id])
 
-  @@index([tenantId])
+  billingMonth Int
+  billingYear  Int
+
+  dueDate DateTime
+
+  lateFeePerDay Float @default(150)
+  graceDays     Int   @default(3)
+
+  subtotal Float
+  lateFee Float @default(0)
+
+  totalAmount Float
+  paidAmount  Float @default(0)
+
+  status InvoiceStatus
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+
+  items InvoiceItem[]
+  payments Payment[]
+
+  @@unique([tenantId, billingMonth, billingYear])
+}
+
+model InvoiceItem {
+  id Int @id @default(autoincrement())
+
+  invoiceId Int
+  invoice   Invoice @relation(fields: [invoiceId], references: [id])
+
+  description String
+  amount      Float
+  type        PaymentType
+}
+
+model Payment {
+  id Int @id @default(autoincrement())
+
+  tenantId Int
+  tenant   Tenant @relation(fields: [tenantId], references: [id])
+
+  invoiceId Int
+  invoice   Invoice @relation(fields: [invoiceId], references: [id])
+
+  amount Float
+
+  type PaymentType
+  status PaymentStatus
+
+  transactionId String?
+  notes         String?
+
+  paymentDate DateTime @default(now())
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+}
+
+// ===============================
+// MAINTENANCE
+// ===============================
+
+model MaintenanceRequest {
+  id Int @id @default(autoincrement())
+
+  tenantId Int
+  tenant   Tenant @relation(fields: [tenantId], references: [id])
+
+  roomId Int
+  room   Room @relation(fields: [roomId], references: [id])
+
+  title       String
+  description String
+
+  status MaintenanceStatus @default(OPEN)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
 }

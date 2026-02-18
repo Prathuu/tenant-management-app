@@ -14,11 +14,13 @@ async function bootstrap() {
   // ✅ GLOBAL VALIDATION (you already had this right)
   app.useGlobalPipes(
     new ValidationPipe({
-      whitelist: true,            // strip unknown fields
+      whitelist: true, // strip unknown fields
       forbidNonWhitelisted: true, // error on extra fields
-      transform: true,            // auto-transform params
+      transform: true, // auto-transform params
     }),
   );
+  if (true) {
+  }
 
   await app.listen(process.env.PORT ?? 3001);
 }
