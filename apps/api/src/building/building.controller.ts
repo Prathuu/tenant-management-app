@@ -5,7 +5,6 @@ import {
   Body,
   Param,
   ParseIntPipe,
-  UseGuards,
 } from '@nestjs/common';
 
 import { JwtAuthGuard } from '../auth/jwt/jwt.guard';
@@ -18,7 +17,6 @@ import { CreateRoomDto } from './dto/create-room.dto';
 import { RolesGuard } from '../auth/roles/roles.guard';
 import { Roles } from '../auth/roles.decorator';
 
-@UseGuards(JwtAuthGuard, RolesGuard)
 @Controller('buildings')
 export class BuildingController {
   constructor(private buildingService: BuildingService) {}

@@ -5,15 +5,12 @@ import {
   Param,
   Body,
   ParseIntPipe,
-  UseGuards,
 } from '@nestjs/common';
 
 import { InvoiceService } from './invoice.service';
 import { CreateInvoiceDto } from './dto/create-invoice.dto';
-import { JwtAuthGuard } from '../auth/jwt/jwt.guard';
-import { RolesGuard } from '../auth/roles/roles.guard';
 import { Roles } from '../auth/roles.decorator';
-@UseGuards(JwtAuthGuard, RolesGuard)
+
 @Controller('invoices')
 export class InvoiceController {
   constructor(private readonly invoiceService: InvoiceService) {}

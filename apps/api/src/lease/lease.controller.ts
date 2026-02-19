@@ -6,15 +6,12 @@ import {
   Param,
   Body,
   ParseIntPipe,
-  UseGuards,
 } from '@nestjs/common';
 
 import { LeaseService } from './lease.service';
 import { CreateLeaseDto } from './dto/create-lease.dto';
-import { JwtAuthGuard } from '../auth/jwt/jwt.guard';
-import { RolesGuard } from '../auth/roles/roles.guard';
 import { Roles } from '../auth/roles.decorator';
-@UseGuards(JwtAuthGuard, RolesGuard)
+
 @Controller()
 export class LeaseController {
   constructor(private leaseService: LeaseService) {}

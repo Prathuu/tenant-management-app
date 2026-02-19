@@ -10,6 +10,9 @@ import { InvoiceModule } from './invoice/invoice.module';
 import { PaymentModule } from './payment/payment.module';
 import { MaintenanceModule } from './maintenance/maintenance.module';
 import { AuthModule } from './auth/auth.module';
+import { APP_GUARD } from '@nestjs/core';
+import { JwtAuthGuard } from './auth/jwt/jwt.guard';
+import { RolesGuard } from './auth/roles/roles.guard';
 
 @Module({
   imports: [
@@ -24,6 +27,16 @@ import { AuthModule } from './auth/auth.module';
     AuthModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [
+    AppService,
+    {
+      provide: APP_GUARD,
+      useClass: JwtAuthGuard,
+    },
+    {
+      provide: APP_GUARD,
+      useClass: RolesGuard,
+    },
+  ],
 })
 export class AppModule {}

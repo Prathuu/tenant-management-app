@@ -6,7 +6,6 @@ import {
   Body,
   Param,
   ParseIntPipe,
-  UseGuards,
 } from '@nestjs/common';
 
 import { TenantService } from './tenant.service';
@@ -14,10 +13,8 @@ import { TenantService } from './tenant.service';
 import { CreateTenantDto } from './dto/create-tenant.dto';
 import { AddPersonDto } from './dto/add-person.dto';
 import { AssignRoomDto } from './dto/assign-room.dto';
-import { JwtAuthGuard } from '../auth/jwt/jwt.guard';
-import { RolesGuard } from '../auth/roles/roles.guard';
 import { Roles } from '../auth/roles.decorator';
-@UseGuards(JwtAuthGuard, RolesGuard)
+
 @Controller()
 export class TenantController {
   constructor(private tenantService: TenantService) {}

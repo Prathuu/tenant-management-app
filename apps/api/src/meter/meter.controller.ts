@@ -5,16 +5,13 @@ import {
   Param,
   Body,
   ParseIntPipe,
-  UseGuards,
 } from '@nestjs/common';
 
 import { MeterService } from './meter.service';
 import { CreateMeterDto } from './dto/create-meter.dto';
 import { CreateMeterReadingDto } from './dto/create-meter-reading.dto';
-import { JwtAuthGuard } from '../auth/jwt/jwt.guard';
-import { RolesGuard } from '../auth/roles/roles.guard';
 import { Roles } from '../auth/roles.decorator';
-@UseGuards(JwtAuthGuard, RolesGuard)
+
 @Controller()
 export class MeterController {
   constructor(private meterService: MeterService) {}
