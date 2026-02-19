@@ -6,6 +6,7 @@ import {
   Body,
   Param,
   ParseIntPipe,
+  UseGuards,
 } from '@nestjs/common';
 
 import { TenantService } from './tenant.service';
@@ -13,27 +14,34 @@ import { TenantService } from './tenant.service';
 import { CreateTenantDto } from './dto/create-tenant.dto';
 import { AddPersonDto } from './dto/add-person.dto';
 import { AssignRoomDto } from './dto/assign-room.dto';
-
+import { JwtAuthGuard } from '../auth/jwt/jwt.guard';
+import { RolesGuard } from '../auth/roles/roles.guard';
+import { Roles } from '../auth/roles.decorator';
+@UseGuards(JwtAuthGuard, RolesGuard)
 @Controller()
 export class TenantController {
   constructor(private tenantService: TenantService) {}
 
   @Post('tenants')
+  @Roles('OWNER', 'MANAGER')
   createTenant(@Body() dto: CreateTenantDto) {
     return this.tenantService.createTenant(dto);
   }
 
   @Get('tenants')
+  @Roles('OWNER', 'MANAGER')
   getAllTenants() {
     return this.tenantService.getAllTenants();
   }
 
   @Get('tenants/:tenantId')
+  @Roles('OWNER', 'MANAGER', 'TENANT')
   getTenant(@Param('tenantId', ParseIntPipe) tenantId: number) {
     return this.tenantService.getTenantById(tenantId);
   }
 
   @Post('tenants/:tenantId/persons')
+  @Roles('OWNER', 'MANAGER')
   addPerson(
     @Param('tenantId', ParseIntPipe) tenantId: number,
     @Body() dto: AddPersonDto,
@@ -42,6 +50,7 @@ export class TenantController {
   }
 
   @Post('tenants/:tenantId/rooms')
+  @Roles('OWNER', 'MANAGER')
   assignRoom(
     @Param('tenantId', ParseIntPipe) tenantId: number,
     @Body() dto: AssignRoomDto,
