@@ -9,6 +9,7 @@ import { LeaseModule } from './lease/lease.module';
 import { InvoiceModule } from './invoice/invoice.module';
 import { PaymentModule } from './payment/payment.module';
 import { MaintenanceModule } from './maintenance/maintenance.module';
+import { AuthModule } from './auth/auth.module';
 
 @Module({
   imports: [
@@ -20,6 +21,7 @@ import { MaintenanceModule } from './maintenance/maintenance.module';
     InvoiceModule,
     PaymentModule,
     MaintenanceModule,
+    AuthModule,
   ],
   controllers: [AppController],
   providers: [AppService],
