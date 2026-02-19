@@ -74,13 +74,7 @@ export class PaymentService {
     });
   }
 
-  async getPaymentById(paymentId: number, user: JwtUser) {
-    await this.accessService.validatePaymentAccess(
-      user.userId,
-      user.role,
-      paymentId,
-    );
-
+  async getPaymentById(paymentId: number) {
     return this.prisma.payment.findUnique({
       where: { id: paymentId },
       include: {
@@ -90,13 +84,7 @@ export class PaymentService {
     });
   }
 
-  async getPaymentsByTenant(tenantId: number, user: JwtUser) {
-    await this.accessService.validateTenantAccess(
-      user.userId,
-      user.role,
-      tenantId,
-    );
-
+  async getPaymentsByTenant(tenantId: number) {
     return this.prisma.payment.findMany({
       where: { tenantId },
       include: {
@@ -106,13 +94,7 @@ export class PaymentService {
     });
   }
 
-  async getPaymentsByInvoice(invoiceId: number, user: JwtUser) {
-    await this.accessService.validateInvoiceAccess(
-      user.userId,
-      user.role,
-      invoiceId,
-    );
-
+  async getPaymentsByInvoice(invoiceId: number) {
     return this.prisma.payment.findMany({
       where: { invoiceId },
       include: {

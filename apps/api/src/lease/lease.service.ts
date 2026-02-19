@@ -83,13 +83,7 @@ export class LeaseService {
     });
   }
 
-  async getLeaseById(leaseId: number, user: JwtUser) {
-    await this.accessService.validateLeaseAccess(
-      user.userId,
-      user.role,
-      leaseId,
-    );
-
+  async getLeaseById(leaseId: number) {
     return this.prisma.lease.findUnique({
       where: { id: leaseId },
       include: {
@@ -103,13 +97,7 @@ export class LeaseService {
     });
   }
 
-  async getTenantLeases(tenantId: number, user: JwtUser) {
-    await this.accessService.validateTenantAccess(
-      user.userId,
-      user.role,
-      tenantId,
-    );
-
+  async getTenantLeases(tenantId: number) {
     return this.prisma.lease.findMany({
       where: {
         tenantRoom: { tenantId },

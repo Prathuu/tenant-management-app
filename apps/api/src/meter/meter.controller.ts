@@ -13,6 +13,7 @@ import { CreateMeterReadingDto } from './dto/create-meter-reading.dto';
 import { Roles } from '../auth/roles.decorator';
 import { JwtUser } from '../auth/types/jwt-user.type';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
+import { Access } from '../common/access/access.decorator';
 
 @Controller()
 export class MeterController {
@@ -27,13 +28,14 @@ export class MeterController {
     return this.meterService.createMeter(roomId, dto);
   }
 
+  @Access('meter', 'roomId')
   @Get('rooms/:roomId/meter')
   @Roles('OWNER', 'MANAGER', 'TENANT')
   getMeter(
     @Param('roomId', ParseIntPipe) roomId: number,
     @CurrentUser() user: JwtUser,
   ) {
-    return this.meterService.getMeterByRoom(roomId, user);
+    return this.meterService.getMeterByRoom(roomId);
   }
 
   @Post('meters/:meterId/readings')
@@ -45,13 +47,14 @@ export class MeterController {
     return this.meterService.addReading(meterId, dto);
   }
 
+  @Access('meter', 'id')
   @Get('meters/:meterId/readings')
   @Roles('OWNER', 'MANAGER', 'TENANT')
   getReadings(
     @Param('meterId', ParseIntPipe) meterId: number,
     @CurrentUser() user: JwtUser,
   ) {
-    return this.meterService.getReadings(meterId, user);
+    return this.meterService.getReadings(meterId);
   }
 
   @Get('buildings/:buildingId/meters')

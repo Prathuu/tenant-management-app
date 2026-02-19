@@ -39,26 +39,7 @@ export class BuildingService {
     });
   }
 
-  async getBuildingById(buildingId: number, user: JwtUser) {
-    await this.accessService.validateBuildingAccess(
-      user.userId,
-      user.role,
-      buildingId,
-    );
-
-    return this.prisma.building.findUnique({
-      where: { id: buildingId },
-      include: {
-        floors: {
-          include: {
-            rooms: true,
-          },
-        },
-      },
-    });
-  }
-
-  private async getBuildingByIdInternal(buildingId: number) {
+  async getBuildingById(buildingId: number) {
     return this.prisma.building.findUnique({
       where: { id: buildingId },
       include: {
@@ -73,7 +54,7 @@ export class BuildingService {
 
   // Create floor
   async createFloor(buildingId: number, dto: CreateFloorDto) {
-    await this.getBuildingByIdInternal(buildingId);
+    await this.getBuildingById(buildingId);
 
     return this.prisma.floor.create({
       data: {

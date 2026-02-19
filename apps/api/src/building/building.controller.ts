@@ -15,6 +15,7 @@ import { CreateRoomDto } from './dto/create-room.dto';
 import { Roles } from '../auth/roles.decorator';
 import { JwtUser } from '../auth/types/jwt-user.type';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
+import { Access } from '../common/access/access.decorator';
 
 @Controller('buildings')
 export class BuildingController {
@@ -34,13 +35,14 @@ export class BuildingController {
     return this.buildingService.getAllBuildings();
   }
 
+  @Access('building', 'id')
   @Get(':id')
   @Roles('OWNER', 'MANAGER', 'TENANT')
   getBuilding(
     @Param('id', ParseIntPipe) id: number,
     @CurrentUser() user: JwtUser,
   ) {
-    return this.buildingService.getBuildingById(id, user);
+    return this.buildingService.getBuildingById(id);
   }
 
   // Create floor

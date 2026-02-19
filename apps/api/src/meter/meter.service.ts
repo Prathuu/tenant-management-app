@@ -40,9 +40,7 @@ export class MeterService {
     });
   }
 
-  async getMeterByRoom(roomId: number, user: JwtUser) {
-    await this.accessService.validateRoomAccess(user.userId, user.role, roomId);
-
+  async getMeterByRoom(roomId: number) {
     return this.prisma.meter.findUnique({
       where: { roomId },
       include: {
@@ -93,42 +91,12 @@ export class MeterService {
     });
   }
 
-  async getReadings(meterId: number, user: JwtUser) {
-    if (user.role === 'OWNER' || user.role === 'MANAGER') {
-      return this.prisma.meterReading.findMany({
-        where: { meterId },
-        orderBy: { readingDate: 'desc' },
-      });
-    }
-
-    // TENANT restriction
-    const meter = await this.prisma.meter.findFirst({
-      where: {
-        id: meterId,
-        room: {
-          tenantRooms: {
-            some: {
-              tenant: {
-                user: {
-                  id: user.userId,
-                },
-              },
-              endDate: null,
-            },
-          },
-        },
-      },
-    });
-
-    if (!meter) {
-      throw new ForbiddenException(
-        'You do not have access to this meter readings',
-      );
-    }
-
+  async getReadings(meterId: number) {
     return this.prisma.meterReading.findMany({
       where: { meterId },
-      orderBy: { readingDate: 'desc' },
+      orderBy: {
+        readingDate: 'desc',
+      },
     });
   }
 }

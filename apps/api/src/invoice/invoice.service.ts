@@ -96,13 +96,7 @@ export class InvoiceService {
     });
   }
 
-  async getInvoiceById(invoiceId: number, user: JwtUser) {
-    await this.accessService.validateInvoiceAccess(
-      user.userId,
-      user.role,
-      invoiceId,
-    );
-
+  async getInvoiceById(invoiceId: number) {
     return this.prisma.invoice.findUnique({
       where: { id: invoiceId },
       include: {

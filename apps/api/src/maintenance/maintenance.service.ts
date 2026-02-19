@@ -60,13 +60,7 @@ export class MaintenanceService {
     });
   }
 
-  async getMaintenanceById(id: number, user: JwtUser) {
-    await this.accessService.validateMaintenanceAccess(
-      user.userId,
-      user.role,
-      id,
-    );
-
+  async getMaintenanceById(id: number) {
     return this.prisma.maintenanceRequest.findUnique({
       where: { id },
       include: {
@@ -76,13 +70,7 @@ export class MaintenanceService {
     });
   }
 
-  async getMaintenanceByTenant(tenantId: number, user: JwtUser) {
-    await this.accessService.validateTenantAccess(
-      user.userId,
-      user.role,
-      tenantId,
-    );
-
+  async getMaintenanceByTenant(tenantId: number) {
     return this.prisma.maintenanceRequest.findMany({
       where: { tenantId },
       include: {
@@ -92,9 +80,7 @@ export class MaintenanceService {
     });
   }
 
-  async getMaintenanceByRoom(roomId: number, user: JwtUser) {
-    await this.accessService.validateRoomAccess(user.userId, user.role, roomId);
-
+  async getMaintenanceByRoom(roomId: number) {
     return this.prisma.maintenanceRequest.findMany({
       where: { roomId },
       include: {
