@@ -26,7 +26,7 @@ export class LeaseService {
     }
 
     if (tenantRoom.lease) {
-      throw new BadRequestException('Lease already exists for this occupancy');
+      throw new BadRequestException('Lease already exists for this TenantRoom');
     }
 
     return this.prisma.lease.create({
@@ -37,14 +37,42 @@ export class LeaseService {
         startDate: new Date(dto.startDate),
         status: 'ACTIVE',
       },
+      include: {
+        tenantRoom: {
+          include: {
+            tenant: true,
+            room: {
+              include: {
+                floor: {
+                  include: {
+                    building: true,
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
     });
   }
 
   async getAllLeases() {
     return this.prisma.lease.findMany({
       include: {
-        tenant: true,
-        room: true,
+        tenantRoom: {
+          include: {
+            tenant: true,
+            room: {
+              include: {
+                floor: {
+                  include: {
+                    building: true,
+                  },
+                },
+              },
+            },
+          },
+        },
       },
     });
   }
@@ -53,8 +81,20 @@ export class LeaseService {
     const lease = await this.prisma.lease.findUnique({
       where: { id },
       include: {
-        tenant: true,
-        room: true,
+        tenantRoom: {
+          include: {
+            tenant: true,
+            room: {
+              include: {
+                floor: {
+                  include: {
+                    building: true,
+                  },
+                },
+              },
+            },
+          },
+        },
       },
     });
 
@@ -67,23 +107,49 @@ export class LeaseService {
 
   async getTenantLeases(tenantId: number) {
     return this.prisma.lease.findMany({
-      where: { tenantId },
+      where: {
+        tenantRoom: {
+          tenantId: tenantId,
+        },
+      },
       include: {
-        room: true,
+        tenantRoom: {
+          include: {
+            tenant: true,
+            room: true,
+          },
+        },
       },
     });
   }
 
   async getRoomLeases(roomId: number) {
     return this.prisma.lease.findMany({
-      where: { roomId },
+      where: {
+        tenantRoom: {
+          roomId: roomId,
+        },
+      },
       include: {
-        tenant: true,
+        tenantRoom: {
+          include: {
+            tenant: true,
+            room: true,
+          },
+        },
       },
     });
   }
 
   async endLease(leaseId: number) {
+    const lease = await this.prisma.lease.findUnique({
+      where: { id: leaseId },
+    });
+
+    if (!lease) {
+      throw new NotFoundException('Lease not found');
+    }
+
     return this.prisma.lease.update({
       where: { id: leaseId },
       data: {
