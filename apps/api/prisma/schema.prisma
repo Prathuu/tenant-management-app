@@ -70,6 +70,12 @@ enum LeaseStatus {
   TERMINATED
 }
 
+enum UserRole {
+  OWNER
+  MANAGER
+  TENANT
+}
+
 
 // ===============================
 // BUILDING STRUCTURE
@@ -153,6 +159,7 @@ model Tenant {
   deletedAt DateTime?
 
   persons Person[]
+  user User?
   tenantRooms TenantRoom[]
   invoices Invoice[]
   payments Payment[]
@@ -160,6 +167,24 @@ model Tenant {
 
 }
 
+model User {
+
+  id Int @id @default(autoincrement())
+
+  email String @unique
+  password String
+
+  name String
+
+  role UserRole
+
+  tenantId Int? @unique
+  tenant Tenant? @relation(fields: [tenantId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+}
 
 model Person {
   id        Int            @id @default(autoincrement())
