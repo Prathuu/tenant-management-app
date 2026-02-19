@@ -10,6 +10,8 @@ import {
 import { PaymentService } from './payment.service';
 import { CreatePaymentDto } from './dto/create-payment.dto';
 import { Roles } from '../auth/roles.decorator';
+import { JwtUser } from '../auth/types/jwt-user.type';
+import { CurrentUser } from '../auth/decorators/current-user.decorator';
 
 @Controller('payments')
 export class PaymentController {
@@ -29,19 +31,28 @@ export class PaymentController {
 
   @Get(':id')
   @Roles('OWNER', 'MANAGER', 'TENANT')
-  getPaymentById(@Param('id', ParseIntPipe) id: number) {
-    return this.paymentService.getPaymentById(id);
+  getPaymentById(
+    @Param('id', ParseIntPipe) id: number,
+    @CurrentUser() user: JwtUser,
+  ) {
+    return this.paymentService.getPaymentById(id, user);
   }
 
   @Get('tenant/:tenantId')
   @Roles('OWNER', 'MANAGER', 'TENANT')
-  getTenantPayments(@Param('tenantId', ParseIntPipe) tenantId: number) {
-    return this.paymentService.getPaymentsByTenant(tenantId);
+  getTenantPayments(
+    @Param('tenantId', ParseIntPipe) tenantId: number,
+    @CurrentUser() user: JwtUser,
+  ) {
+    return this.paymentService.getPaymentsByTenant(tenantId, user);
   }
 
   @Get('invoice/:invoiceId')
   @Roles('OWNER', 'MANAGER', 'TENANT')
-  getInvoicePayments(@Param('invoiceId', ParseIntPipe) invoiceId: number) {
-    return this.paymentService.getPaymentsByInvoice(invoiceId);
+  getInvoicePayments(
+    @Param('invoiceId', ParseIntPipe) invoiceId: number,
+    @CurrentUser() user: JwtUser,
+  ) {
+    return this.paymentService.getPaymentsByInvoice(invoiceId, user);
   }
 }

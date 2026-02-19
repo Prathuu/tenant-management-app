@@ -10,6 +10,8 @@ import {
 import { InvoiceService } from './invoice.service';
 import { CreateInvoiceDto } from './dto/create-invoice.dto';
 import { Roles } from '../auth/roles.decorator';
+import { JwtUser } from '../auth/types/jwt-user.type';
+import { CurrentUser } from '../auth/decorators/current-user.decorator';
 
 @Controller('invoices')
 export class InvoiceController {
@@ -29,8 +31,11 @@ export class InvoiceController {
 
   @Get(':id')
   @Roles('OWNER', 'MANAGER', 'TENANT')
-  getInvoiceById(@Param('id', ParseIntPipe) id: number) {
-    return this.invoiceService.getInvoiceById(id);
+  getInvoiceById(
+    @Param('id', ParseIntPipe) id: number,
+    @CurrentUser() user: JwtUser,
+  ) {
+    return this.invoiceService.getInvoiceById(id, user);
   }
 
   @Get('tenant/:tenantId')

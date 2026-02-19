@@ -1,12 +1,21 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  ForbiddenException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 
 import { PrismaService } from '../../prisma/prisma.service';
 import { CreateMaintenanceDto } from './dto/create-maintenance.dto';
 import { MaintenanceStatus } from '@prisma/client';
+import { JwtUser } from '../auth/types/jwt-user.type';
+import { AccessService } from '../common/access/access.service';
 
 @Injectable()
 export class MaintenanceService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private accessService: AccessService,
+  ) {}
 
   async createMaintenance(dto: CreateMaintenanceDto) {
     return this.prisma.maintenanceRequest.create({
@@ -51,36 +60,46 @@ export class MaintenanceService {
     });
   }
 
-  async getMaintenanceById(id: number) {
-    const request = await this.prisma.maintenanceRequest.findUnique({
+  async getMaintenanceById(id: number, user: JwtUser) {
+    await this.accessService.validateMaintenanceAccess(
+      user.userId,
+      user.role,
+      id,
+    );
+
+    return this.prisma.maintenanceRequest.findUnique({
       where: { id },
       include: {
         tenant: true,
         room: true,
       },
     });
-
-    if (!request) {
-      throw new NotFoundException('Maintenance request not found');
-    }
-
-    return request;
   }
 
-  async getMaintenanceByTenant(tenantId: number) {
+  async getMaintenanceByTenant(tenantId: number, user: JwtUser) {
+    await this.accessService.validateTenantAccess(
+      user.userId,
+      user.role,
+      tenantId,
+    );
+
     return this.prisma.maintenanceRequest.findMany({
       where: { tenantId },
       include: {
+        tenant: true,
         room: true,
       },
     });
   }
 
-  async getMaintenanceByRoom(roomId: number) {
+  async getMaintenanceByRoom(roomId: number, user: JwtUser) {
+    await this.accessService.validateRoomAccess(user.userId, user.role, roomId);
+
     return this.prisma.maintenanceRequest.findMany({
       where: { roomId },
       include: {
         tenant: true,
+        room: true,
       },
     });
   }

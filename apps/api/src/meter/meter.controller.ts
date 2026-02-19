@@ -11,6 +11,8 @@ import { MeterService } from './meter.service';
 import { CreateMeterDto } from './dto/create-meter.dto';
 import { CreateMeterReadingDto } from './dto/create-meter-reading.dto';
 import { Roles } from '../auth/roles.decorator';
+import { JwtUser } from '../auth/types/jwt-user.type';
+import { CurrentUser } from '../auth/decorators/current-user.decorator';
 
 @Controller()
 export class MeterController {
@@ -27,8 +29,11 @@ export class MeterController {
 
   @Get('rooms/:roomId/meter')
   @Roles('OWNER', 'MANAGER', 'TENANT')
-  getMeter(@Param('roomId', ParseIntPipe) roomId: number) {
-    return this.meterService.getMeterByRoom(roomId);
+  getMeter(
+    @Param('roomId', ParseIntPipe) roomId: number,
+    @CurrentUser() user: JwtUser,
+  ) {
+    return this.meterService.getMeterByRoom(roomId, user);
   }
 
   @Post('meters/:meterId/readings')
@@ -42,8 +47,11 @@ export class MeterController {
 
   @Get('meters/:meterId/readings')
   @Roles('OWNER', 'MANAGER', 'TENANT')
-  getReadings(@Param('meterId', ParseIntPipe) meterId: number) {
-    return this.meterService.getReadings(meterId);
+  getReadings(
+    @Param('meterId', ParseIntPipe) meterId: number,
+    @CurrentUser() user: JwtUser,
+  ) {
+    return this.meterService.getReadings(meterId, user);
   }
 
   @Get('buildings/:buildingId/meters')

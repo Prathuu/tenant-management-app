@@ -2,14 +2,20 @@ import {
   Injectable,
   NotFoundException,
   BadRequestException,
+  ForbiddenException,
 } from '@nestjs/common';
 
 import { PrismaService } from '../../prisma/prisma.service';
 import { CreateLeaseDto } from './dto/create-lease.dto';
+import { JwtUser } from '../auth/types/jwt-user.type';
+import { AccessService } from '../common/access/access.service';
 
 @Injectable()
 export class LeaseService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private accessService: AccessService,
+  ) {}
 
   async createLease(dto: CreateLeaseDto) {
     const tenantRoom = await this.prisma.tenantRoom.findUnique({
@@ -77,40 +83,36 @@ export class LeaseService {
     });
   }
 
-  async getLeaseById(id: number) {
-    const lease = await this.prisma.lease.findUnique({
-      where: { id },
+  async getLeaseById(leaseId: number, user: JwtUser) {
+    await this.accessService.validateLeaseAccess(
+      user.userId,
+      user.role,
+      leaseId,
+    );
+
+    return this.prisma.lease.findUnique({
+      where: { id: leaseId },
       include: {
         tenantRoom: {
           include: {
             tenant: true,
-            room: {
-              include: {
-                floor: {
-                  include: {
-                    building: true,
-                  },
-                },
-              },
-            },
+            room: true,
           },
         },
       },
     });
-
-    if (!lease) {
-      throw new NotFoundException('Lease not found');
-    }
-
-    return lease;
   }
 
-  async getTenantLeases(tenantId: number) {
+  async getTenantLeases(tenantId: number, user: JwtUser) {
+    await this.accessService.validateTenantAccess(
+      user.userId,
+      user.role,
+      tenantId,
+    );
+
     return this.prisma.lease.findMany({
       where: {
-        tenantRoom: {
-          tenantId: tenantId,
-        },
+        tenantRoom: { tenantId },
       },
       include: {
         tenantRoom: {

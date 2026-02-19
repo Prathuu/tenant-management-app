@@ -7,15 +7,14 @@ import {
   ParseIntPipe,
 } from '@nestjs/common';
 
-import { JwtAuthGuard } from '../auth/jwt/jwt.guard';
-
 import { BuildingService } from './building.service';
 
 import { CreateBuildingDto } from './dto/create-building.dto';
 import { CreateFloorDto } from './dto/create-floor.dto';
 import { CreateRoomDto } from './dto/create-room.dto';
-import { RolesGuard } from '../auth/roles/roles.guard';
 import { Roles } from '../auth/roles.decorator';
+import { JwtUser } from '../auth/types/jwt-user.type';
+import { CurrentUser } from '../auth/decorators/current-user.decorator';
 
 @Controller('buildings')
 export class BuildingController {
@@ -35,11 +34,13 @@ export class BuildingController {
     return this.buildingService.getAllBuildings();
   }
 
-  // Get single building
   @Get(':id')
   @Roles('OWNER', 'MANAGER', 'TENANT')
-  getBuilding(@Param('id', ParseIntPipe) id: number) {
-    return this.buildingService.getBuildingById(id);
+  getBuilding(
+    @Param('id', ParseIntPipe) id: number,
+    @CurrentUser() user: JwtUser,
+  ) {
+    return this.buildingService.getBuildingById(id, user);
   }
 
   // Create floor

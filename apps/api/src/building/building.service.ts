@@ -1,13 +1,22 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  ForbiddenException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 
 import { CreateBuildingDto } from './dto/create-building.dto';
 import { CreateFloorDto } from './dto/create-floor.dto';
 import { CreateRoomDto } from './dto/create-room.dto';
 import { PrismaService } from '../../prisma/prisma.service';
+import { JwtUser } from '../auth/types/jwt-user.type';
+import { AccessService } from '../common/access/access.service';
 
 @Injectable()
 export class BuildingService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private accessService: AccessService,
+  ) {}
 
   // Create building
   async createBuilding(dto: CreateBuildingDto) {
@@ -30,10 +39,15 @@ export class BuildingService {
     });
   }
 
-  // Get single building
-  async getBuildingById(id: number) {
-    const building = await this.prisma.building.findUnique({
-      where: { id },
+  async getBuildingById(buildingId: number, user: JwtUser) {
+    await this.accessService.validateBuildingAccess(
+      user.userId,
+      user.role,
+      buildingId,
+    );
+
+    return this.prisma.building.findUnique({
+      where: { id: buildingId },
       include: {
         floors: {
           include: {
@@ -42,17 +56,24 @@ export class BuildingService {
         },
       },
     });
+  }
 
-    if (!building) {
-      throw new NotFoundException('Building not found');
-    }
-
-    return building;
+  private async getBuildingByIdInternal(buildingId: number) {
+    return this.prisma.building.findUnique({
+      where: { id: buildingId },
+      include: {
+        floors: {
+          include: {
+            rooms: true,
+          },
+        },
+      },
+    });
   }
 
   // Create floor
   async createFloor(buildingId: number, dto: CreateFloorDto) {
-    await this.getBuildingById(buildingId);
+    await this.getBuildingByIdInternal(buildingId);
 
     return this.prisma.floor.create({
       data: {

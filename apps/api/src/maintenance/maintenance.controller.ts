@@ -12,6 +12,8 @@ import { MaintenanceService } from './maintenance.service';
 import { CreateMaintenanceDto } from './dto/create-maintenance.dto';
 import { MaintenanceStatus } from '@prisma/client';
 import { Roles } from '../auth/roles.decorator';
+import { JwtUser } from '../auth/types/jwt-user.type';
+import { CurrentUser } from '../auth/decorators/current-user.decorator';
 
 @Controller('maintenance')
 export class MaintenanceController {
@@ -31,20 +33,29 @@ export class MaintenanceController {
 
   @Get(':id')
   @Roles('OWNER', 'MANAGER', 'TENANT')
-  getMaintenanceById(@Param('id', ParseIntPipe) id: number) {
-    return this.maintenanceService.getMaintenanceById(id);
+  getMaintenanceById(
+    @Param('id', ParseIntPipe) id: number,
+    @CurrentUser() user: JwtUser,
+  ) {
+    return this.maintenanceService.getMaintenanceById(id, user);
   }
 
   @Get('tenant/:tenantId')
   @Roles('OWNER', 'MANAGER', 'TENANT')
-  getTenantMaintenance(@Param('tenantId', ParseIntPipe) tenantId: number) {
-    return this.maintenanceService.getMaintenanceByTenant(tenantId);
+  getTenantMaintenance(
+    @Param('tenantId', ParseIntPipe) tenantId: number,
+    @CurrentUser() user: JwtUser,
+  ) {
+    return this.maintenanceService.getMaintenanceByTenant(tenantId, user);
   }
 
   @Get('room/:roomId')
   @Roles('OWNER', 'MANAGER', 'TENANT')
-  getRoomMaintenance(@Param('roomId', ParseIntPipe) roomId: number) {
-    return this.maintenanceService.getMaintenanceByRoom(roomId);
+  getRoomMaintenance(
+    @Param('roomId', ParseIntPipe) roomId: number,
+    @CurrentUser() user: JwtUser,
+  ) {
+    return this.maintenanceService.getMaintenanceByRoom(roomId, user);
   }
 
   @Patch(':id/status')

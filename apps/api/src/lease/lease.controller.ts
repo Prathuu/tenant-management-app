@@ -11,6 +11,8 @@ import {
 import { LeaseService } from './lease.service';
 import { CreateLeaseDto } from './dto/create-lease.dto';
 import { Roles } from '../auth/roles.decorator';
+import { JwtUser } from '../auth/types/jwt-user.type';
+import { CurrentUser } from '../auth/decorators/current-user.decorator';
 
 @Controller()
 export class LeaseController {
@@ -30,14 +32,20 @@ export class LeaseController {
 
   @Get('leases/:id')
   @Roles('OWNER', 'MANAGER', 'TENANT')
-  getLease(@Param('id', ParseIntPipe) id: number) {
-    return this.leaseService.getLeaseById(id);
+  getLease(
+    @Param('id', ParseIntPipe) id: number,
+    @CurrentUser() user: JwtUser,
+  ) {
+    return this.leaseService.getLeaseById(id, user);
   }
 
   @Get('tenants/:tenantId/leases')
   @Roles('OWNER', 'MANAGER', 'TENANT')
-  getTenantLeases(@Param('tenantId', ParseIntPipe) tenantId: number) {
-    return this.leaseService.getTenantLeases(tenantId);
+  getTenantLeases(
+    @Param('tenantId', ParseIntPipe) tenantId: number,
+    @CurrentUser() user: JwtUser,
+  ) {
+    return this.leaseService.getTenantLeases(tenantId, user);
   }
 
   @Get('rooms/:roomId/leases')

@@ -2,15 +2,21 @@ import {
   Injectable,
   NotFoundException,
   BadRequestException,
+  ForbiddenException,
 } from '@nestjs/common';
 
 import { PrismaService } from '../../prisma/prisma.service';
 import { CreatePaymentDto } from './dto/create-payment.dto';
 import { InvoiceStatus } from '@prisma/client';
+import { JwtUser } from '../auth/types/jwt-user.type';
+import { AccessService } from '../common/access/access.service';
 
 @Injectable()
 export class PaymentService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private accessService: AccessService,
+  ) {}
 
   async createPayment(dto: CreatePaymentDto) {
     const invoice = await this.prisma.invoice.findUnique({
@@ -68,36 +74,50 @@ export class PaymentService {
     });
   }
 
-  async getPaymentById(id: number) {
-    const payment = await this.prisma.payment.findUnique({
-      where: { id },
+  async getPaymentById(paymentId: number, user: JwtUser) {
+    await this.accessService.validatePaymentAccess(
+      user.userId,
+      user.role,
+      paymentId,
+    );
+
+    return this.prisma.payment.findUnique({
+      where: { id: paymentId },
       include: {
         tenant: true,
         invoice: true,
       },
     });
-
-    if (!payment) {
-      throw new NotFoundException('Payment not found');
-    }
-
-    return payment;
   }
 
-  async getPaymentsByTenant(tenantId: number) {
+  async getPaymentsByTenant(tenantId: number, user: JwtUser) {
+    await this.accessService.validateTenantAccess(
+      user.userId,
+      user.role,
+      tenantId,
+    );
+
     return this.prisma.payment.findMany({
       where: { tenantId },
       include: {
+        tenant: true,
         invoice: true,
       },
     });
   }
 
-  async getPaymentsByInvoice(invoiceId: number) {
+  async getPaymentsByInvoice(invoiceId: number, user: JwtUser) {
+    await this.accessService.validateInvoiceAccess(
+      user.userId,
+      user.role,
+      invoiceId,
+    );
+
     return this.prisma.payment.findMany({
       where: { invoiceId },
       include: {
         tenant: true,
+        invoice: true,
       },
     });
   }

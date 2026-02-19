@@ -1,16 +1,21 @@
 import {
   Injectable,
   NotFoundException,
-  BadRequestException,
+  ForbiddenException,
 } from '@nestjs/common';
 
 import { PrismaService } from '../../prisma/prisma.service';
 import { CreateInvoiceDto } from './dto/create-invoice.dto';
 import { InvoiceStatus, PaymentType } from '@prisma/client';
+import { JwtUser } from '../auth/types/jwt-user.type';
+import { AccessService } from '../common/access/access.service';
 
 @Injectable()
 export class InvoiceService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private accessService: AccessService,
+  ) {}
 
   async createInvoice(dto: CreateInvoiceDto) {
     const lease = await this.prisma.lease.findUnique({
@@ -91,22 +96,20 @@ export class InvoiceService {
     });
   }
 
-  async getInvoiceById(id: number) {
-    const invoice = await this.prisma.invoice.findUnique({
-      where: { id },
+  async getInvoiceById(invoiceId: number, user: JwtUser) {
+    await this.accessService.validateInvoiceAccess(
+      user.userId,
+      user.role,
+      invoiceId,
+    );
+
+    return this.prisma.invoice.findUnique({
+      where: { id: invoiceId },
       include: {
-        tenant: true,
-        lease: true,
         items: true,
-        payments: true,
+        tenant: true,
       },
     });
-
-    if (!invoice) {
-      throw new NotFoundException('Invoice not found');
-    }
-
-    return invoice;
   }
 
   async getInvoicesByTenant(tenantId: number) {

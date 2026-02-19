@@ -2,15 +2,21 @@ import {
   Injectable,
   NotFoundException,
   BadRequestException,
+  ForbiddenException,
 } from '@nestjs/common';
 
 import { CreateMeterDto } from './dto/create-meter.dto';
 import { CreateMeterReadingDto } from './dto/create-meter-reading.dto';
 import { PrismaService } from '../../prisma/prisma.service';
+import { JwtUser } from '../auth/types/jwt-user.type';
+import { AccessService } from '../common/access/access.service';
 
 @Injectable()
 export class MeterService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private accessService: AccessService,
+  ) {}
 
   async createMeter(roomId: number, dto: CreateMeterDto) {
     const room = await this.prisma.room.findUnique({
@@ -34,11 +40,12 @@ export class MeterService {
     });
   }
 
-  async getMeterByRoom(roomId: number) {
-    const meter = await this.prisma.meter.findUnique({
+  async getMeterByRoom(roomId: number, user: JwtUser) {
+    await this.accessService.validateRoomAccess(user.userId, user.role, roomId);
+
+    return this.prisma.meter.findUnique({
       where: { roomId },
       include: {
-        room: true,
         readings: {
           orderBy: {
             readingDate: 'desc',
@@ -46,15 +53,6 @@ export class MeterService {
         },
       },
     });
-
-    if (!meter) {
-      throw new NotFoundException('Meter not found');
-    }
-
-    return {
-      ...meter,
-      latestReading: meter.readings[0] || null,
-    };
   }
 
   async getMetersByBuilding(buildingId: number) {
@@ -95,12 +93,42 @@ export class MeterService {
     });
   }
 
-  async getReadings(meterId: number) {
+  async getReadings(meterId: number, user: JwtUser) {
+    if (user.role === 'OWNER' || user.role === 'MANAGER') {
+      return this.prisma.meterReading.findMany({
+        where: { meterId },
+        orderBy: { readingDate: 'desc' },
+      });
+    }
+
+    // TENANT restriction
+    const meter = await this.prisma.meter.findFirst({
+      where: {
+        id: meterId,
+        room: {
+          tenantRooms: {
+            some: {
+              tenant: {
+                user: {
+                  id: user.userId,
+                },
+              },
+              endDate: null,
+            },
+          },
+        },
+      },
+    });
+
+    if (!meter) {
+      throw new ForbiddenException(
+        'You do not have access to this meter readings',
+      );
+    }
+
     return this.prisma.meterReading.findMany({
       where: { meterId },
-      orderBy: {
-        readingDate: 'desc',
-      },
+      orderBy: { readingDate: 'desc' },
     });
   }
 }

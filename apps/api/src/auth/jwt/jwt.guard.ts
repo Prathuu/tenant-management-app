@@ -2,37 +2,42 @@ import {
   Injectable,
   ExecutionContext,
   UnauthorizedException,
+  CanActivate,
 } from '@nestjs/common';
 
 import { JwtService } from '@nestjs/jwt';
+import { JwtUser } from '../types/jwt-user.type';
 
 @Injectable()
-export class JwtAuthGuard {
+export class JwtAuthGuard implements CanActivate {
   constructor(private jwtService: JwtService) {}
 
-  canActivate(context: ExecutionContext) {
+  canActivate(context: ExecutionContext): boolean {
     const request = context.switchToHttp().getRequest();
 
     const authHeader = request.headers.authorization;
 
     if (!authHeader) {
-      throw new UnauthorizedException('Missing token');
+      throw new UnauthorizedException('Missing Authorization header');
     }
 
-    const token = authHeader.split(' ')[1];
+    const parts = authHeader.split(' ');
 
-    if (!token) {
-      throw new UnauthorizedException('Invalid token');
+    if (parts.length !== 2 || parts[0] !== 'Bearer') {
+      throw new UnauthorizedException('Invalid Authorization format');
     }
+
+    const token = parts[1];
 
     try {
-      const payload = this.jwtService.verify(token);
+      const payload = this.jwtService.verify<JwtUser>(token);
 
+      // attach properly typed user
       request.user = payload;
 
       return true;
-    } catch {
-      throw new UnauthorizedException('Invalid token');
+    } catch (error) {
+      throw new UnauthorizedException('Invalid or expired token');
     }
   }
 }
