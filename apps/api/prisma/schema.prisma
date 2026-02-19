@@ -50,10 +50,18 @@ enum PaymentStatus {
   FAILED
 }
 
+enum MaintenancePriority {
+  LOW
+  MEDIUM
+  HIGH
+  URGENT
+}
+
 enum MaintenanceStatus {
   OPEN
   IN_PROGRESS
   RESOLVED
+  CLOSED
 }
 
 enum LeaseStatus {
@@ -321,19 +329,25 @@ model Payment {
 // ===============================
 
 model MaintenanceRequest {
+
   id Int @id @default(autoincrement())
 
   tenantId Int
-  tenant   Tenant @relation(fields: [tenantId], references: [id])
+  tenant Tenant @relation(fields: [tenantId], references: [id])
 
   roomId Int
-  room   Room @relation(fields: [roomId], references: [id])
+  room Room @relation(fields: [roomId], references: [id])
 
-  title       String
+  title String
   description String
 
-  status MaintenanceStatus @default(OPEN)
+  priority MaintenancePriority
+  status MaintenanceStatus
+
+  notes String?
 
   createdAt DateTime @default(now())
-  updatedAt DateTime @default(now()) @updatedAt
+  updatedAt DateTime @updatedAt
+
 }
+
