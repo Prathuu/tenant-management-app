@@ -1,4 +1,106 @@
-import { Injectable } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  BadRequestException,
+} from '@nestjs/common';
+
+import { CreateMeterDto } from './dto/create-meter.dto';
+import { CreateMeterReadingDto } from './dto/create-meter-reading.dto';
+import { PrismaService } from '../../prisma/prisma.service';
 
 @Injectable()
-export class MeterService {}
+export class MeterService {
+  constructor(private prisma: PrismaService) {}
+
+  async createMeter(roomId: number, dto: CreateMeterDto) {
+    const room = await this.prisma.room.findUnique({
+      where: { id: roomId },
+      include: { meter: true },
+    });
+
+    if (!room) {
+      throw new NotFoundException('Room not found');
+    }
+
+    if (room.meter) {
+      throw new BadRequestException('Room already has a meter');
+    }
+
+    return this.prisma.meter.create({
+      data: {
+        roomId,
+        meterNumber: dto.meterNumber,
+      },
+    });
+  }
+
+  async getMeterByRoom(roomId: number) {
+    const meter = await this.prisma.meter.findUnique({
+      where: { roomId },
+      include: {
+        room: true,
+        readings: {
+          orderBy: {
+            readingDate: 'desc',
+          },
+        },
+      },
+    });
+
+    if (!meter) {
+      throw new NotFoundException('Meter not found');
+    }
+
+    return {
+      ...meter,
+      latestReading: meter.readings[0] || null,
+    };
+  }
+
+  async getMetersByBuilding(buildingId: number) {
+    return this.prisma.meter.findMany({
+      where: {
+        room: {
+          floor: {
+            buildingId,
+          },
+        },
+      },
+      include: {
+        room: true,
+        readings: {
+          orderBy: {
+            readingDate: 'desc',
+          },
+        },
+      },
+    });
+  }
+
+  async addReading(meterId: number, dto: CreateMeterReadingDto) {
+    const meter = await this.prisma.meter.findUnique({
+      where: { id: meterId },
+    });
+
+    if (!meter) {
+      throw new NotFoundException('Meter not found');
+    }
+
+    return this.prisma.meterReading.create({
+      data: {
+        meterId,
+        reading: dto.reading,
+        readingDate: new Date(),
+      },
+    });
+  }
+
+  async getReadings(meterId: number) {
+    return this.prisma.meterReading.findMany({
+      where: { meterId },
+      orderBy: {
+        readingDate: 'desc',
+      },
+    });
+  }
+}
