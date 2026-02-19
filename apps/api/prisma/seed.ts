@@ -4,7 +4,7 @@ import {
   InvoiceStatus,
   PaymentType,
   PaymentStatus,
-  PersonRelation,
+  LeaseStatus,
 } from '@prisma/client';
 
 const prisma = new PrismaClient();
@@ -41,7 +41,10 @@ async function createBuildingWithTenants(
     ),
   );
 
-  const rooms: any[] = [];
+  const rooms: {
+    room: any;
+    meter: any;
+  }[] = [];
 
   for (const floor of floors) {
     for (let i = 1; i <= 3; i++) {
@@ -57,6 +60,15 @@ async function createBuildingWithTenants(
         data: {
           meterNumber: `${buildingName}-${room.roomNumber}`,
           roomId: room.id,
+        },
+      });
+
+      // initial meter reading
+      await prisma.meterReading.create({
+        data: {
+          meterId: meter.id,
+          reading: Math.floor(Math.random() * 1000) + 1000,
+          readingDate: new Date(),
         },
       });
 
@@ -81,6 +93,7 @@ async function createBuildingWithTenants(
     const tenant = tenants[i];
     const roomData = rooms[i];
 
+    // Create TenantRoom (occupancy)
     const tenantRoom = await prisma.tenantRoom.create({
       data: {
         tenantId: tenant.id,
@@ -90,23 +103,25 @@ async function createBuildingWithTenants(
       },
     });
 
-    await prisma.lease.create({
+    // Create Lease (correct structure)
+    const lease = await prisma.lease.create({
       data: {
-        tenantId: tenant.id,
         tenantRoomId: tenantRoom.id,
+        rentAmount: roomData.room.baseRent,
+        depositAmount: roomData.room.baseRent * 2,
         startDate: new Date(),
         endDate: new Date(new Date().setFullYear(new Date().getFullYear() + 1)),
-        rentAmount: roomData.room.baseRent,
-        securityDeposit: roomData.room.baseRent * 2,
-        depositPaid: true,
+        status: LeaseStatus.ACTIVE,
       },
     });
 
     const electricityAmount = Math.floor(Math.random() * 3000) + 1000;
 
+    // Create Invoice
     const invoice = await prisma.invoice.create({
       data: {
         tenantId: tenant.id,
+        leaseId: lease.id,
         billingMonth: BILL_MONTH,
         billingYear: BILL_YEAR,
         dueDate: new Date(),
@@ -131,6 +146,7 @@ async function createBuildingWithTenants(
       },
     });
 
+    // Create Payment
     await prisma.payment.create({
       data: {
         tenantId: tenant.id,

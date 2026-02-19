@@ -56,6 +56,13 @@ enum MaintenanceStatus {
   RESOLVED
 }
 
+enum LeaseStatus {
+  ACTIVE
+  ENDED
+  TERMINATED
+}
+
+
 // ===============================
 // BUILDING STRUCTURE
 // ===============================
@@ -126,24 +133,25 @@ model Room {
 // ===============================
 
 model Tenant {
-  id       Int     @id @default(autoincrement())
-  fullName String
-  phone    String
-  email    String?
 
-  isActive Boolean @default(true)
+  id Int @id @default(autoincrement())
+
+  fullName String
+  phone String
+  email String?
 
   createdAt DateTime @default(now())
-  updatedAt DateTime @default(now()) @updatedAt
+  updatedAt DateTime @updatedAt
   deletedAt DateTime?
 
-  maintenanceRequests MaintenanceRequest[]
   persons Person[]
   tenantRooms TenantRoom[]
-  leases Lease[]
   invoices Invoice[]
   payments Payment[]
+  maintenanceRequests MaintenanceRequest[]
+
 }
+
 
 model Person {
   id        Int            @id @default(autoincrement())
@@ -186,28 +194,27 @@ model TenantRoom {
 // ===============================
 
 model Lease {
+
   id Int @id @default(autoincrement())
 
-  tenantId Int
-  tenant   Tenant @relation(fields: [tenantId], references: [id])
-
   tenantRoomId Int @unique
-  tenantRoom   TenantRoom @relation(fields: [tenantRoomId], references: [id])
-
-  startDate DateTime
-  endDate   DateTime
+  tenantRoom TenantRoom @relation(fields: [tenantRoomId], references: [id])
 
   rentAmount Float
+  depositAmount Float
 
-  securityDeposit Float
-  depositPaid Boolean @default(false)
-  depositRefunded Boolean @default(false)
+  startDate DateTime
+  endDate DateTime?
 
-  noticePeriodDays Int @default(30)
+  status LeaseStatus
 
   createdAt DateTime @default(now())
-  updatedAt DateTime @default(now()) @updatedAt
+  updatedAt DateTime @updatedAt
+
+  invoices Invoice[]
+
 }
+
 
 // ===============================
 // METER SYSTEM
@@ -248,34 +255,31 @@ model MeterReading {
 // ===============================
 
 model Invoice {
+
   id Int @id @default(autoincrement())
 
   tenantId Int
-  tenant   Tenant @relation(fields: [tenantId], references: [id])
+  tenant Tenant @relation(fields: [tenantId], references: [id])
+
+  leaseId Int
+  lease Lease @relation(fields: [leaseId], references: [id])
 
   billingMonth Int
-  billingYear  Int
+  billingYear Int
 
   dueDate DateTime
 
-  lateFeePerDay Float @default(150)
-  graceDays     Int   @default(3)
-
   subtotal Float
-  lateFee Float @default(0)
-
   totalAmount Float
-  paidAmount  Float @default(0)
 
   status InvoiceStatus
 
   createdAt DateTime @default(now())
-  updatedAt DateTime @default(now()) @updatedAt
+  updatedAt DateTime @updatedAt
 
   items InvoiceItem[]
   payments Payment[]
 
-  @@unique([tenantId, billingMonth, billingYear])
 }
 
 model InvoiceItem {
