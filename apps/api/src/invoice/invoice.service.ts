@@ -4,11 +4,11 @@ import {
   ForbiddenException,
 } from '@nestjs/common';
 
-import { PrismaService } from '../../prisma/prisma.service';
+import { PrismaService } from '@prisma/prisma.service';
 import { CreateInvoiceDto } from './dto/create-invoice.dto';
 import { InvoiceStatus, PaymentType } from '@prisma/client';
 import { JwtUser } from '../auth/types/jwt-user.type';
-import { AccessService } from '../common/access/access.service';
+import { AccessService } from '@/common/access/access.service';
 
 @Injectable()
 export class InvoiceService {

@@ -2,7 +2,7 @@ import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { TenantModule } from './tenant/tenant.module';
-import { PrismaModule } from '../prisma/prisma.module';
+import { PrismaModule } from '@prisma/prisma.module';
 import { BuildingModule } from './building/building.module';
 import { MeterModule } from './meter/meter.module';
 import { LeaseModule } from './lease/lease.module';
@@ -13,7 +13,7 @@ import { AuthModule } from './auth/auth.module';
 import { APP_GUARD } from '@nestjs/core';
 import { JwtAuthGuard } from './auth/jwt/jwt.guard';
 import { RolesGuard } from './auth/roles/roles.guard';
-import { AccessModule } from './common/access/access.module';
+import { AccessModule } from '@/common/access/access.module';
 
 @Module({
   imports: [

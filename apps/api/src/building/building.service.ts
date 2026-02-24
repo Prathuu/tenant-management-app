@@ -7,9 +7,9 @@ import {
 import { CreateBuildingDto } from './dto/create-building.dto';
 import { CreateFloorDto } from './dto/create-floor.dto';
 import { CreateRoomDto } from './dto/create-room.dto';
-import { PrismaService } from '../../prisma/prisma.service';
+import { PrismaService } from '@prisma/prisma.service';
 import { JwtUser } from '../auth/types/jwt-user.type';
-import { AccessService } from '../common/access/access.service';
+import { AccessService } from '@/common/access/access.service';
 
 @Injectable()
 export class BuildingService {

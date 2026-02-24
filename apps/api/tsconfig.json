@@ -16,7 +16,12 @@
 
     "strict": false,
     "skipLibCheck": true,
-    "forceConsistentCasingInFileNames": true
+    "forceConsistentCasingInFileNames": true,
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["src/*"],
+      "@prisma/*": ["prisma/*"]
+    }
   },
 
   "include": ["src/**/*.ts", "src/types/**/*.d.ts"]

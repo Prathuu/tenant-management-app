@@ -12,7 +12,7 @@ import { CreatePaymentDto } from './dto/create-payment.dto';
 import { Roles } from '../auth/roles.decorator';
 import { JwtUser } from '../auth/types/jwt-user.type';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
-import { Access } from '../common/access/access.decorator';
+import { Access } from '@/common/access/access.decorator';
 
 @Controller('payments')
 export class PaymentController {

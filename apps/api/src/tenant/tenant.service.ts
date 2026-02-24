@@ -1,25 +1,27 @@
-import {
-  Injectable,
-  NotFoundException,
-  BadRequestException,
-} from '@nestjs/common';
+import { Injectable, HttpStatus } from '@nestjs/common';
 
-import { PrismaService } from '../../prisma/prisma.service';
+import { PrismaService } from '@prisma/prisma.service';
 
 import { CreateTenantDto } from './dto/create-tenant.dto';
 import { AddPersonDto } from './dto/add-person.dto';
 import { AssignRoomDto } from './dto/assign-room.dto';
 
+import { AppException } from '@/common/exceptions/base.exception';
+import { ExceptionCode } from '@/common/exceptions/exception-codes';
+
 @Injectable()
 export class TenantService {
   constructor(private prisma: PrismaService) {}
 
+  // CREATE TENANT
   async createTenant(dto: CreateTenantDto) {
+    // PrismaExceptionFilter will handle duplicate errors automatically
     return this.prisma.tenant.create({
       data: dto,
     });
   }
 
+  // GET ALL TENANTS
   async getAllTenants() {
     return this.prisma.tenant.findMany({
       where: { deletedAt: null },
@@ -35,6 +37,7 @@ export class TenantService {
     });
   }
 
+  // GET TENANT BY ID
   async getTenantById(tenantId: number) {
     const tenant = await this.prisma.tenant.findUnique({
       where: { id: tenantId },
@@ -49,13 +52,19 @@ export class TenantService {
     });
 
     if (!tenant) {
-      throw new NotFoundException('Tenant not found');
+      throw new AppException(
+        'Tenant not found',
+        ExceptionCode.TENANT_NOT_FOUND,
+        HttpStatus.NOT_FOUND,
+      );
     }
 
     return tenant;
   }
 
+  // ADD PERSON
   async addPerson(tenantId: number, dto: AddPersonDto) {
+    // reuse existing method (throws exception automatically)
     await this.getTenantById(tenantId);
 
     return this.prisma.person.create({
@@ -66,24 +75,34 @@ export class TenantService {
     });
   }
 
+  // ASSIGN ROOM
   async assignRoom(tenantId: number, dto: AssignRoomDto) {
+    // verify tenant exists
+    await this.getTenantById(tenantId);
+
     const room = await this.prisma.room.findUnique({
       where: { id: dto.roomId },
       include: {
         tenantRooms: {
-          where: {
-            endDate: null,
-          },
+          where: { endDate: null },
         },
       },
     });
 
     if (!room) {
-      throw new NotFoundException('Room not found');
+      throw new AppException(
+        'Room not found',
+        ExceptionCode.RESOURCE_NOT_FOUND,
+        HttpStatus.NOT_FOUND,
+      );
     }
 
     if (room.tenantRooms.length > 0) {
-      throw new BadRequestException('Room already occupied');
+      throw new AppException(
+        'Room already occupied',
+        ExceptionCode.VALIDATION_ERROR,
+        HttpStatus.BAD_REQUEST,
+      );
     }
 
     return this.prisma.tenantRoom.create({
@@ -96,7 +115,28 @@ export class TenantService {
     });
   }
 
+  // END OCCUPANCY
   async endOccupancy(tenantRoomId: number) {
+    const tenantRoom = await this.prisma.tenantRoom.findUnique({
+      where: { id: tenantRoomId },
+    });
+
+    if (!tenantRoom) {
+      throw new AppException(
+        'Tenant room assignment not found',
+        ExceptionCode.RESOURCE_NOT_FOUND,
+        HttpStatus.NOT_FOUND,
+      );
+    }
+
+    if (tenantRoom.endDate) {
+      throw new AppException(
+        'Occupancy already ended',
+        ExceptionCode.VALIDATION_ERROR,
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+
     return this.prisma.tenantRoom.update({
       where: { id: tenantRoomId },
       data: {
@@ -105,8 +145,9 @@ export class TenantService {
     });
   }
 
+  // GET ROOM OCCUPANCY
   async getRoomOccupancy(roomId: number) {
-    return this.prisma.tenantRoom.findFirst({
+    const occupancy = await this.prisma.tenantRoom.findFirst({
       where: {
         roomId,
         endDate: null,
@@ -115,5 +156,15 @@ export class TenantService {
         tenant: true,
       },
     });
+
+    if (!occupancy) {
+      throw new AppException(
+        'Room is currently vacant',
+        ExceptionCode.RESOURCE_NOT_FOUND,
+        HttpStatus.NOT_FOUND,
+      );
+    }
+
+    return occupancy;
   }
 }

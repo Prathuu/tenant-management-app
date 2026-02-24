@@ -1,8 +1,8 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { ValidationPipe } from '@nestjs/common/pipes/validation.pipe';
-import { GlobalExceptionFilter } from './common/exceptions/global-exception.filter';
-import { PrismaExceptionFilter } from './common/exceptions/prisma-exception.filter';
+import { GlobalExceptionFilter } from '@/common/exceptions/global-exception.filter';
+import { PrismaExceptionFilter } from '@/common/exceptions/prisma-exception.filter';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
