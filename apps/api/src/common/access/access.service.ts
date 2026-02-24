@@ -1,4 +1,6 @@
-import { Injectable, ForbiddenException } from '@nestjs/common';
+import { Injectable, HttpStatus } from '@nestjs/common';
+import { AppException } from '../exceptions/base.exception';
+import { ExceptionCode } from '../exceptions/exception-codes';
 import { PrismaService } from '@prisma/prisma.service';
 
 @Injectable()
@@ -25,7 +27,11 @@ export class AccessService {
     });
 
     if (!exists) {
-      throw new ForbiddenException('You do not have access to this building');
+      throw new AppException(
+        'You do not have access to this building',
+        ExceptionCode.FORBIDDEN,
+        HttpStatus.FORBIDDEN,
+      );
     }
   }
 
@@ -44,7 +50,11 @@ export class AccessService {
     });
 
     if (!exists) {
-      throw new ForbiddenException('You do not have access to this tenant');
+      throw new AppException(
+        'You do not have access to this tenant',
+        ExceptionCode.FORBIDDEN,
+        HttpStatus.FORBIDDEN,
+      );
     }
   }
 
@@ -63,7 +73,11 @@ export class AccessService {
     });
 
     if (!exists) {
-      throw new ForbiddenException('You do not have access to this invoice');
+      throw new AppException(
+        'You do not have access to this invoice',
+        ExceptionCode.FORBIDDEN,
+        HttpStatus.FORBIDDEN,
+      );
     }
   }
 
@@ -80,7 +94,11 @@ export class AccessService {
     });
 
     if (!exists) {
-      throw new ForbiddenException('You do not have access to this lease');
+      throw new AppException(
+        'You do not have access to this lease',
+        ExceptionCode.FORBIDDEN,
+        HttpStatus.FORBIDDEN,
+      );
     }
   }
 
@@ -99,7 +117,11 @@ export class AccessService {
     });
 
     if (!exists) {
-      throw new ForbiddenException('You do not have access to this payment');
+      throw new AppException(
+        'You do not have access to this payment',
+        ExceptionCode.FORBIDDEN,
+        HttpStatus.FORBIDDEN,
+      );
     }
   }
 
@@ -115,7 +137,11 @@ export class AccessService {
     });
 
     if (!exists) {
-      throw new ForbiddenException('You do not have access to this room');
+      throw new AppException(
+        'You do not have access to this room',
+        ExceptionCode.FORBIDDEN,
+        HttpStatus.FORBIDDEN,
+      );
     }
   }
 
@@ -137,7 +163,11 @@ export class AccessService {
     });
 
     if (!exists) {
-      throw new ForbiddenException('You do not have access to this meter');
+      throw new AppException(
+        'You do not have access to this meter',
+        ExceptionCode.FORBIDDEN,
+        HttpStatus.FORBIDDEN,
+      );
     }
   }
 
@@ -156,8 +186,10 @@ export class AccessService {
     });
 
     if (!exists) {
-      throw new ForbiddenException(
+      throw new AppException(
         'You do not have access to this maintenance request',
+        ExceptionCode.FORBIDDEN,
+        HttpStatus.FORBIDDEN,
       );
     }
   }

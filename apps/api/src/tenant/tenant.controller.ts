@@ -11,7 +11,7 @@ import { TenantService } from './tenant.service';
 import { CreateTenantDto } from './dto/create-tenant.dto';
 import { AddPersonDto } from './dto/add-person.dto';
 import { AssignRoomDto } from './dto/assign-room.dto';
-import { Roles } from '../auth/roles.decorator';
+import { Roles } from '@/auth/roles.decorator';
 
 @Controller()
 export class TenantController {

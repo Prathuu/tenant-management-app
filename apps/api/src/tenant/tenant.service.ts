@@ -12,7 +12,6 @@ export class TenantService {
 
   // CREATE TENANT
   async createTenant(dto: CreateTenantDto) {
-    // PrismaExceptionFilter will handle duplicate errors automatically
     return this.prisma.tenant.create({
       data: dto,
     });
@@ -61,7 +60,6 @@ export class TenantService {
 
   // ADD PERSON
   async addPerson(tenantId: number, dto: AddPersonDto) {
-    // reuse existing method (throws exception automatically)
     await this.getTenantById(tenantId);
 
     return this.prisma.person.create({
