@@ -1,12 +1,9 @@
-import {
-  Injectable,
-  NotFoundException,
-  BadRequestException,
-} from '@nestjs/common';
-
+import { HttpStatus, Injectable } from '@nestjs/common';
 import { PrismaService } from '@prisma/prisma.service';
 import { CreatePaymentDto } from './dto/create-payment.dto';
 import { InvoiceStatus } from '@prisma/client';
+import { ExceptionCode } from '@/common/exceptions/exception-codes';
+import { AppException } from '@/common/exceptions/base.exception';
 
 @Injectable()
 export class PaymentService {
@@ -21,14 +18,22 @@ export class PaymentService {
     });
 
     if (!invoice) {
-      throw new NotFoundException('Invoice not found');
+      throw new AppException(
+        'Invoice not found',
+        ExceptionCode.INVOICE_NOT_FOUND,
+        HttpStatus.NOT_FOUND,
+      );
     }
 
     const totalPaid =
       invoice.payments.reduce((sum, p) => sum + p.amount, 0) + dto.amount;
 
     if (totalPaid > invoice.totalAmount) {
-      throw new BadRequestException('Payment exceeds invoice total');
+      throw new AppException(
+        'Payment exceeds invoice total',
+        ExceptionCode.PAYMENT_EXCEEDS_INVOICE_TOTAL,
+        HttpStatus.BAD_REQUEST,
+      );
     }
 
     const payment = await this.prisma.payment.create({

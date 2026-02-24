@@ -1,8 +1,10 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { HttpStatus, Injectable } from '@nestjs/common';
 import { CreateBuildingDto } from './dto/create-building.dto';
 import { CreateFloorDto } from './dto/create-floor.dto';
 import { CreateRoomDto } from './dto/create-room.dto';
 import { PrismaService } from '@prisma/prisma.service';
+import { AppException } from '@/common/exceptions/base.exception';
+import { ExceptionCode } from '@/common/exceptions/exception-codes';
 
 @Injectable()
 export class BuildingService {
@@ -71,7 +73,11 @@ export class BuildingService {
     });
 
     if (!floor) {
-      throw new NotFoundException('Floor not found');
+      throw new AppException(
+        'Floor not found',
+        ExceptionCode.BUILDING_NOT_FOUND,
+        HttpStatus.NOT_FOUND,
+      );
     }
 
     return this.prisma.room.create({

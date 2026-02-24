@@ -1,7 +1,9 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { HttpStatus, Injectable } from '@nestjs/common';
 import { PrismaService } from '@prisma/prisma.service';
 import { CreateInvoiceDto } from './dto/create-invoice.dto';
 import { InvoiceStatus, PaymentType } from '@prisma/client';
+import { AppException } from '@/common/exceptions/base.exception';
+import { ExceptionCode } from '@/common/exceptions/exception-codes';
 
 @Injectable()
 export class InvoiceService {
@@ -21,7 +23,11 @@ export class InvoiceService {
     });
 
     if (!lease) {
-      throw new NotFoundException('Lease not found');
+      throw new AppException(
+        'Lease not found',
+        ExceptionCode.LEASE_NOT_FOUND,
+        HttpStatus.NOT_FOUND,
+      );
     }
 
     const rentAmount = lease.rentAmount;

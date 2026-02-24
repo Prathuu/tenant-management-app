@@ -1,12 +1,10 @@
-import {
-  Injectable,
-  NotFoundException,
-  BadRequestException,
-} from '@nestjs/common';
+import { HttpStatus, Injectable } from '@nestjs/common';
 
 import { CreateMeterDto } from './dto/create-meter.dto';
 import { CreateMeterReadingDto } from './dto/create-meter-reading.dto';
 import { PrismaService } from '@prisma/prisma.service';
+import { AppException } from '@/common/exceptions/base.exception';
+import { ExceptionCode } from '@/common/exceptions/exception-codes';
 
 @Injectable()
 export class MeterService {
@@ -19,11 +17,19 @@ export class MeterService {
     });
 
     if (!room) {
-      throw new NotFoundException('Room not found');
+      throw new AppException(
+        'Room not found',
+        ExceptionCode.TENANT_ROOM_NOT_FOUND,
+        HttpStatus.NOT_FOUND,
+      );
     }
 
     if (room.meter) {
-      throw new BadRequestException('Room already has a meter');
+      throw new AppException(
+        'Room already has a meter',
+        ExceptionCode.METER_ALREADY_EXISTS,
+        HttpStatus.BAD_REQUEST,
+      );
     }
 
     return this.prisma.meter.create({
@@ -73,7 +79,11 @@ export class MeterService {
     });
 
     if (!meter) {
-      throw new NotFoundException('Meter not found');
+      throw new AppException(
+        'Meter not found',
+        ExceptionCode.METER_NOT_FOUND,
+        HttpStatus.NOT_FOUND,
+      );
     }
 
     return this.prisma.meterReading.create({

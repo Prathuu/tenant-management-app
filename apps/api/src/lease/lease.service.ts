@@ -1,10 +1,8 @@
-import {
-  Injectable,
-  NotFoundException,
-  BadRequestException,
-} from '@nestjs/common';
+import { Injectable, HttpStatus } from '@nestjs/common';
 import { PrismaService } from '@prisma/prisma.service';
 import { CreateLeaseDto } from './dto/create-lease.dto';
+import { AppException } from '@/common/exceptions/base.exception';
+import { ExceptionCode } from '@/common/exceptions/exception-codes';
 
 @Injectable()
 export class LeaseService {
@@ -21,11 +19,19 @@ export class LeaseService {
     });
 
     if (!tenantRoom) {
-      throw new NotFoundException('TenantRoom not found');
+      throw new AppException(
+        'TenantRoom not found',
+        ExceptionCode.TENANT_ROOM_NOT_FOUND,
+        HttpStatus.NOT_FOUND,
+      );
     }
 
     if (tenantRoom.lease) {
-      throw new BadRequestException('Lease already exists for this TenantRoom');
+      throw new AppException(
+        'Lease already exists for this TenantRoom',
+        ExceptionCode.LEASE_ALREADY_EXISTS,
+        HttpStatus.BAD_REQUEST,
+      );
     }
 
     return this.prisma.lease.create({
@@ -130,7 +136,11 @@ export class LeaseService {
     });
 
     if (!lease) {
-      throw new NotFoundException('Lease not found');
+      throw new AppException(
+        'Lease not found',
+        ExceptionCode.LEASE_NOT_FOUND,
+        HttpStatus.NOT_FOUND,
+      );
     }
 
     return this.prisma.lease.update({
