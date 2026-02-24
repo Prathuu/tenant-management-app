@@ -2,21 +2,15 @@ import {
   Injectable,
   NotFoundException,
   BadRequestException,
-  ForbiddenException,
 } from '@nestjs/common';
 
 import { CreateMeterDto } from './dto/create-meter.dto';
 import { CreateMeterReadingDto } from './dto/create-meter-reading.dto';
 import { PrismaService } from '@prisma/prisma.service';
-import { JwtUser } from '../auth/types/jwt-user.type';
-import { AccessService } from '@/common/access/access.service';
 
 @Injectable()
 export class MeterService {
-  constructor(
-    private prisma: PrismaService,
-    private accessService: AccessService,
-  ) {}
+  constructor(private prisma: PrismaService) {}
 
   async createMeter(roomId: number, dto: CreateMeterDto) {
     const room = await this.prisma.room.findUnique({

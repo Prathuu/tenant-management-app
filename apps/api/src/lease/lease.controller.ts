@@ -7,7 +7,6 @@ import {
   Body,
   ParseIntPipe,
 } from '@nestjs/common';
-
 import { LeaseService } from './lease.service';
 import { CreateLeaseDto } from './dto/create-lease.dto';
 import { Roles } from '../auth/roles.decorator';

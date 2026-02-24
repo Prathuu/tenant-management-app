@@ -1,21 +1,12 @@
-import {
-  ForbiddenException,
-  Injectable,
-  NotFoundException,
-} from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 
 import { PrismaService } from '@prisma/prisma.service';
 import { CreateMaintenanceDto } from './dto/create-maintenance.dto';
 import { MaintenanceStatus } from '@prisma/client';
-import { JwtUser } from '../auth/types/jwt-user.type';
-import { AccessService } from '@/common/access/access.service';
 
 @Injectable()
 export class MaintenanceService {
-  constructor(
-    private prisma: PrismaService,
-    private accessService: AccessService,
-  ) {}
+  constructor(private prisma: PrismaService) {}
 
   async createMaintenance(dto: CreateMaintenanceDto) {
     return this.prisma.maintenanceRequest.create({

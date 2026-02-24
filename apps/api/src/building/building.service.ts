@@ -1,22 +1,12 @@
-import {
-  ForbiddenException,
-  Injectable,
-  NotFoundException,
-} from '@nestjs/common';
-
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateBuildingDto } from './dto/create-building.dto';
 import { CreateFloorDto } from './dto/create-floor.dto';
 import { CreateRoomDto } from './dto/create-room.dto';
 import { PrismaService } from '@prisma/prisma.service';
-import { JwtUser } from '../auth/types/jwt-user.type';
-import { AccessService } from '@/common/access/access.service';
 
 @Injectable()
 export class BuildingService {
-  constructor(
-    private prisma: PrismaService,
-    private accessService: AccessService,
-  ) {}
+  constructor(private prisma: PrismaService) {}
 
   // Create building
   async createBuilding(dto: CreateBuildingDto) {

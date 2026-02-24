@@ -2,20 +2,13 @@ import {
   Injectable,
   NotFoundException,
   BadRequestException,
-  ForbiddenException,
 } from '@nestjs/common';
-
 import { PrismaService } from '@prisma/prisma.service';
 import { CreateLeaseDto } from './dto/create-lease.dto';
-import { JwtUser } from '../auth/types/jwt-user.type';
-import { AccessService } from '@/common/access/access.service';
 
 @Injectable()
 export class LeaseService {
-  constructor(
-    private prisma: PrismaService,
-    private accessService: AccessService,
-  ) {}
+  constructor(private prisma: PrismaService) {}
 
   async createLease(dto: CreateLeaseDto) {
     const tenantRoom = await this.prisma.tenantRoom.findUnique({

@@ -1,11 +1,8 @@
 import { Injectable, HttpStatus } from '@nestjs/common';
-
 import { PrismaService } from '@prisma/prisma.service';
-
 import { CreateTenantDto } from './dto/create-tenant.dto';
 import { AddPersonDto } from './dto/add-person.dto';
 import { AssignRoomDto } from './dto/assign-room.dto';
-
 import { AppException } from '@/common/exceptions/base.exception';
 import { ExceptionCode } from '@/common/exceptions/exception-codes';
 

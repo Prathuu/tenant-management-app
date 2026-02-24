@@ -6,9 +6,7 @@ import {
   Param,
   ParseIntPipe,
 } from '@nestjs/common';
-
 import { BuildingService } from './building.service';
-
 import { CreateBuildingDto } from './dto/create-building.dto';
 import { CreateFloorDto } from './dto/create-floor.dto';
 import { CreateRoomDto } from './dto/create-room.dto';

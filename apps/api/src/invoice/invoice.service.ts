@@ -1,21 +1,11 @@
-import {
-  Injectable,
-  NotFoundException,
-  ForbiddenException,
-} from '@nestjs/common';
-
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '@prisma/prisma.service';
 import { CreateInvoiceDto } from './dto/create-invoice.dto';
 import { InvoiceStatus, PaymentType } from '@prisma/client';
-import { JwtUser } from '../auth/types/jwt-user.type';
-import { AccessService } from '@/common/access/access.service';
 
 @Injectable()
 export class InvoiceService {
-  constructor(
-    private prisma: PrismaService,
-    private accessService: AccessService,
-  ) {}
+  constructor(private prisma: PrismaService) {}
 
   async createInvoice(dto: CreateInvoiceDto) {
     const lease = await this.prisma.lease.findUnique({

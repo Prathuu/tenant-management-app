@@ -7,9 +7,7 @@ import {
   Param,
   ParseIntPipe,
 } from '@nestjs/common';
-
 import { TenantService } from './tenant.service';
-
 import { CreateTenantDto } from './dto/create-tenant.dto';
 import { AddPersonDto } from './dto/add-person.dto';
 import { AssignRoomDto } from './dto/assign-room.dto';
