@@ -1,15 +1,10 @@
-import Providers from "./providers";
+import { ReactQueryProvider } from "@/providers/react-query-provider";
 
-
-export default function RootLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default function RootLayout({ children }) {
   return (
-    <html lang="en">
+    <html>
       <body>
-        <Providers>{children}</Providers>
+        <ReactQueryProvider>{children}</ReactQueryProvider>
       </body>
     </html>
   );
