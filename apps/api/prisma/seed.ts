@@ -28,6 +28,14 @@ function monthsLater(n: number) {
   return new Date(Date.now() + n * 30 * 86400000);
 }
 
+function generateEmail(name: string, building: string) {
+  const normalizedName = name.toLowerCase().replace(/\s+/g, '.'); // Tony Stark -> tony.stark
+
+  const normalizedBuilding = building.toLowerCase().replace(/\s+/g, ''); // Stark Tower -> starktower
+
+  return `${normalizedName}@${normalizedBuilding}.com`;
+}
+
 async function createUser(
   email: string,
   name: string,
@@ -86,7 +94,7 @@ async function createTenantFlow(
   });
 
   await createUser(
-    `${tenantName.replace(' ', '').toLowerCase()}@${buildingName}.com`,
+    generateEmail(tenantName, buildingName),
     tenantName,
     UserRole.TENANT,
     tenant.id,
@@ -231,8 +239,8 @@ async function createBuildingSystem(
     },
   });
 
-  await createUser(`${owner}@${name}.com`, owner, UserRole.OWNER);
-  await createUser(`${manager}@${name}.com`, manager, UserRole.MANAGER);
+  await createUser(generateEmail(owner, name), owner, UserRole.OWNER);
+  await createUser(generateEmail(manager, name), manager, UserRole.MANAGER);
 
   const floors = [];
 
