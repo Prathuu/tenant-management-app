@@ -1,8 +1,17 @@
-import axios from 'axios';
+import axios from "axios";
 
-export const api = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_URL!,
+export const apiClient = axios.create({
+  baseURL: process.env.NEXT_PUBLIC_API_URL,
 });
 
-console.log('API URL:', process.env.NEXT_PUBLIC_API_URL);
+apiClient.interceptors.request.use((config) => {
+  if (typeof window !== "undefined") {
+    const token = localStorage.getItem("accessToken");
 
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+  }
+
+  return config;
+});
