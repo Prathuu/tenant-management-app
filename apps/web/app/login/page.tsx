@@ -4,8 +4,8 @@ import { useState } from "react";
 import { useLogin } from "@/features/auth/auth.hooks";
 
 export default function LoginPage() {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const [email, setEmail] = useState("tony.stark@starktower.com");
+  const [password, setPassword] = useState("password123");
 
   const { mutate, isPending } = useLogin();
 

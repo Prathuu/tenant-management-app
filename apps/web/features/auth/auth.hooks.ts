@@ -6,7 +6,7 @@ export const useLogin = () => {
     mutationFn: login,
     onSuccess: (data) => {
       localStorage.setItem("accessToken", data.accessToken);
-
+      document.cookie = `accessToken=${data.accessToken}; path=/`;
       window.location.href = "/dashboard";
     },
   });
