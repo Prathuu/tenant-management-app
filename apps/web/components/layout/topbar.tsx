@@ -1,3 +1,7 @@
+"use client";
+
+import { logout } from "@/features/auth/auth.api";
+
 export default function Topbar() {
   return (
     <header
@@ -10,6 +14,12 @@ export default function Topbar() {
       }}
     >
       <span>Dashboard</span>
+      <button
+        onClick={logout}
+        className="px-3 py-1 bg-red-500 text-white rounded"
+      >
+        Logout
+      </button>
     </header>
   );
 }
