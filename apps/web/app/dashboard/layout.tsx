@@ -1,5 +1,20 @@
-import DashboardLayout from "@/components/layout/dashboard-layout";
+import Sidebar from "@/components/layout/sidebar";
+import Topbar from "@/components/layout/topbar";
 
-export default function Layout({ children }: { children: React.ReactNode }) {
-  return <DashboardLayout>{children}</DashboardLayout>;
+export default function DashboardLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  return (
+    <div className="flex h-screen gap-4 p-4 bg-gradient-to-br from-background to-muted">
+      <Sidebar />
+
+      <div className="flex flex-col flex-1 gap-4">
+        <Topbar />
+
+        <main className="flex-1 overflow-auto p-4">{children}</main>
+      </div>
+    </div>
+  );
 }
