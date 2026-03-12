@@ -82,6 +82,26 @@
   --sidebar-ring: oklch(0.708 0 0);
 }
 
+.theme-blue {
+  --primary: 221 83% 53%;
+}
+
+.theme-emerald {
+  --primary: 160 84% 39%;
+}
+
+.theme-violet {
+  --primary: 262 83% 58%;
+}
+
+.theme-rose {
+  --primary: 346 77% 49%;
+}
+
+.theme-amber {
+  --primary: 38 92% 50%;
+}
+
 .dark {
   --background: oklch(0.145 0 0);
   --foreground: oklch(0.985 0 0);

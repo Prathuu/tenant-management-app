@@ -1,3 +1,16 @@
+"use client";
+
+import { useEffect } from "react";
+import { loadPalette } from "@/lib/theme";
+
+export function PaletteLoader() {
+  useEffect(() => {
+    loadPalette();
+  }, []);
+
+  return null;
+}
+
 import { ReactQueryProvider } from "@/providers/react-query-provider";
 import { ThemeProvider } from "@/providers/theme-provider";
 import { Toaster } from "@/components/ui/sonner";
@@ -18,6 +31,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
       <body>
         <ThemeProvider>
           <ReactQueryProvider>
+            <PaletteLoader />
             {children}
             <Toaster />
           </ReactQueryProvider>
