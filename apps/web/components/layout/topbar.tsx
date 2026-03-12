@@ -14,9 +14,12 @@ export default function Topbar() {
       <div className="flex items-center gap-3">
         <PaletteSwitcher />
         <ThemeToggle />
-        <Button variant="destructive" onClick={logout}>
+        <Button variant="destructive" onClick={logout} className="bg-primary">
           Logout
         </Button>
+        <div className="bg-primary text-primary-foreground p-6 rounded-lg">
+          Palette Test
+        </div>
       </div>
     </Glass>
   );
