@@ -7,7 +7,10 @@ export default function DashboardLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div style={{ display: "flex", height: "100vh" }}>
+    <div
+      style={{ display: "flex", height: "100vh" }}
+      className="min-h-screen bg-gradient-to-br from-background via-background to-muted/40"
+    >
       <Sidebar />
 
       <div style={{ flex: 1 }}>

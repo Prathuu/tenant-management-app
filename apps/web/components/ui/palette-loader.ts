@@ -1,11 +1,11 @@
 "use client";
 
 import { useEffect } from "react";
-import { loadPalette } from "@/lib/palette";
+import { applyPalette, getSavedPalette } from "@/lib/palette";
 
 export function PaletteLoader() {
   useEffect(() => {
-    loadPalette();
+    applyPalette(getSavedPalette());
   }, []);
 
   return null;

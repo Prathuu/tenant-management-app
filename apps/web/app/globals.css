@@ -130,31 +130,28 @@
 
 /* Palette Themes */
 
-/* COLOR PALETTES */
-
-:root.theme-blue {
-  --primary: oklch(0.62 0.23 264);
-  --color-primary: oklch(0.62 0.23 264);
+:root.theme-indigo {
+  --primary: oklch(0.65 0.24 277);
 }
 
-:root.theme-emerald {
-  --primary: oklch(0.70 0.19 160);
-  --color-primary: oklch(0.70 0.19 160);
+:root.theme-orchid {
+  --primary: oklch(0.67 0.27 310);
 }
 
-:root.theme-violet {
-  --primary: oklch(0.65 0.23 292);
-  --color-primary: oklch(0.65 0.23 292);
+:root.theme-cyan {
+  --primary: oklch(0.75 0.18 200);
 }
 
-:root.theme-rose {
-  --primary: oklch(0.65 0.25 25);
-  --color-primary: oklch(0.65 0.25 25);
+:root.theme-coral {
+  --primary: oklch(0.67 0.23 25);
 }
 
-:root.theme-amber {
+:root.theme-honey {
   --primary: oklch(0.80 0.18 85);
-  --color-primary: oklch(0.80 0.18 85);
+}
+
+:root.theme-mint {
+  --primary: oklch(0.78 0.16 160);
 }
 
 .palette-transition {

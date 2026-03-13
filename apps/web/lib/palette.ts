@@ -1,17 +1,17 @@
-export const palettes = ["blue", "emerald", "violet", "rose", "amber"];
+const palettes = ["indigo", "orchid", "cyan", "coral", "honey", "mint"];
 
-export function setPalette(palette: string) {
+export function applyPalette(palette: string) {
   const html = document.documentElement;
 
-  palettes.forEach((p) => html.classList.remove(`theme-${p}`));
+  palettes.forEach((p) => {
+    html.classList.remove(`theme-${p}`);
+  });
 
   html.classList.add(`theme-${palette}`);
 
   localStorage.setItem("palette", palette);
 }
 
-export function loadPalette() {
-  const saved = localStorage.getItem("palette") || "blue";
-
-  document.documentElement.classList.add(`theme-${saved}`);
+export function getSavedPalette() {
+  return localStorage.getItem("palette") || "indigo";
 }

@@ -17,9 +17,6 @@ export default function Topbar() {
         <Button variant="destructive" onClick={logout} className="bg-primary">
           Logout
         </Button>
-        <div className="bg-primary text-primary-foreground p-6 rounded-lg">
-          Palette Test
-        </div>
       </div>
     </Glass>
   );
