@@ -1,13 +1,12 @@
 import Sidebar from "@/components/layout/sidebar";
 import Topbar from "@/components/layout/topbar";
-
 export default function DashboardLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
   return (
-    <div className="flex h-screen gap-4 p-4 bg-gradient-to-br from-background to-muted">
+    <div className="flex h-screen gap-4 p-4">
       <Sidebar />
 
       <div className="flex flex-col flex-1 gap-4">

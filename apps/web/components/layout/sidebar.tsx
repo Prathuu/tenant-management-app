@@ -1,18 +1,38 @@
-"use client";
-
 import Link from "next/link";
-import { Glass } from "@/components/ui/glass";
 
 export default function Sidebar() {
   return (
-    <Glass className="h-full w-64 p-4 flex flex-col gap-4">
-      <h2 className="text-lg font-semibold">Tenant Manager</h2>
+    <aside className="glass w-64 p-6 flex flex-col justify-between">
+      <div className="space-y-6">
+        <h1 className="text-xl font-semibold">Tenant Manager</h1>
 
-      <nav className="flex flex-col gap-2">
-        <Link href="/dashboard/buildings">Buildings</Link>
-        <Link href="/dashboard/tenants">Tenants</Link>
-        <Link href="/dashboard/billing">Billing</Link>
-      </nav>
-    </Glass>
+        <nav className="space-y-3 text-sm">
+          <Link
+            href="/dashboard/buildings"
+            className="block px-3 py-2 rounded-lg hover:bg-white/10 transition"
+          >
+            Buildings
+          </Link>
+
+          <Link
+            href="/dashboard/tenants"
+            className="block px-3 py-2 rounded-lg hover:bg-white/10 transition"
+          >
+            Tenants
+          </Link>
+
+          <Link
+            href="/dashboard/billing"
+            className="block px-3 py-2 rounded-lg hover:bg-white/10 transition"
+          >
+            Billing
+          </Link>
+        </nav>
+      </div>
+
+      <div className="w-10 h-10 rounded-full glass flex items-center justify-center">
+        N
+      </div>
+    </aside>
   );
 }
