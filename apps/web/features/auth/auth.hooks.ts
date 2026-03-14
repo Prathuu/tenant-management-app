@@ -13,7 +13,7 @@ export const useLogin = () => {
     onSuccess: (response) => {
       const token = response.data.access_token;
 
-      localStorage.setItem("accessToken", token);
+      localStorage.setItem("access_token", token);
 
       router.push("/dashboard/buildings");
     },

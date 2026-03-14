@@ -8,5 +8,5 @@ export const login = async (payload: LoginPayload): Promise<LoginResponse> => {
 };
 
 export function logout() {
-  localStorage.removeItem("accessToken");
+  localStorage.removeItem("access_token");
 }

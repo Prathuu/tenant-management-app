@@ -10,7 +10,7 @@ export const api = axios.create({
  */
 api.interceptors.request.use((config) => {
   if (typeof window !== "undefined") {
-    const token = localStorage.getItem("accessToken");
+    const token = localStorage.getItem("access_token");
 
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
@@ -30,7 +30,7 @@ api.interceptors.response.use(
       console.warn("Unauthorized. Clearing token.");
 
       if (typeof window !== "undefined") {
-        localStorage.removeItem("accessToken");
+        localStorage.removeItem("access_token");
       }
     }
 
