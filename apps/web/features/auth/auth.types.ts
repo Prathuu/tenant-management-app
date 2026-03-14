@@ -4,5 +4,9 @@ export interface LoginPayload {
 }
 
 export interface LoginResponse {
-  accessToken: string;
+  success: boolean;
+  message: string;
+  data: {
+    access_token: string;
+  };
 }

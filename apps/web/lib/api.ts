@@ -27,13 +27,11 @@ api.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response?.status === 401) {
-      console.warn("Unauthorized. Logging out.");
+      console.warn("Unauthorized. Clearing token.");
 
-      // localStorage.removeItem("accessToken");
-
-      // if (typeof window !== "undefined") {
-      //   window.location.href = "/login";
-      // }
+      if (typeof window !== "undefined") {
+        localStorage.removeItem("accessToken");
+      }
     }
 
     return Promise.reject(error);
