@@ -2,6 +2,7 @@
 
 import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { PaletteSwitcher } from "@/components/ui/palette-switcher";
+import { logout } from "@/features/auth/auth.api";
 
 export default function Header() {
   return (
@@ -14,7 +15,10 @@ export default function Header() {
           <ThemeToggle />
         </div>
 
-        <button className="px-4 py-2 rounded-lg bg-red-500/20 hover:bg-red-500/30 transition">
+        <button
+          onClick={logout}
+          className="px-4 py-2 rounded-lg bg-red-500/20 hover:bg-red-500/30 transition"
+        >
           Logout
         </button>
       </div>
