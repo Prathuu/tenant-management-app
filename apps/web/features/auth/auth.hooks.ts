@@ -1,7 +1,7 @@
 "use client";
 
 import { useMutation } from "@tanstack/react-query";
-import { login } from "./auth.api";
+import { login, logout } from "./auth.api";
 import { useRouter } from "next/navigation";
 
 export const useLogin = () => {
@@ -14,4 +14,15 @@ export const useLogin = () => {
       router.push("/dashboard/buildings");
     },
   });
+};
+
+export const useLogout = () => {
+  const router = useRouter();
+
+  const handleLogout = async () => {
+    await logout();
+    router.push("/login");
+  };
+
+  return handleLogout;
 };

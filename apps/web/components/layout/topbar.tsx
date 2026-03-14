@@ -2,9 +2,10 @@
 
 import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { PaletteSwitcher } from "@/components/ui/palette-switcher";
-import { logout } from "@/features/auth/auth.api";
+import { useLogout } from "@/features/auth/auth.hooks";
 
 export default function Header() {
+  const logout = useLogout();
   return (
     <header className="glass flex items-center justify-between px-6 py-4">
       <h2 className="text-lg font-semibold">Dashboard</h2>
