@@ -1,12 +1,11 @@
 import { api } from "@/lib/api";
-import { LoginPayload, LoginResponse } from "./auth.types";
+import { LoginPayload } from "./auth.types";
 
-export const login = async (payload: LoginPayload): Promise<LoginResponse> => {
+export const login = async (payload: LoginPayload) => {
   const { data } = await api.post("/auth/login", payload);
-
   return data;
 };
 
-export function logout() {
-  localStorage.removeItem("access_token");
-}
+export const logout = async () => {
+  await api.post("/auth/logout");
+};

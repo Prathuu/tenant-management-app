@@ -10,11 +10,7 @@ export const useLogin = () => {
   return useMutation({
     mutationFn: login,
 
-    onSuccess: (response) => {
-      const token = response.data.access_token;
-
-      localStorage.setItem("access_token", token);
-
+    onSuccess: () => {
       router.push("/dashboard/buildings");
     },
   });
