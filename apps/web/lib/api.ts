@@ -9,7 +9,7 @@ export const api = axios.create({
  * Global API error handling
  */
 api.interceptors.response.use(
-  (response) => response,
+  (response) => response.data,
   (error) => {
     if (error.response?.status === 401) {
       console.warn("Unauthorized");
