@@ -4,11 +4,14 @@ import { ValidationPipe } from '@nestjs/common';
 import { GlobalExceptionFilter } from '@/common/exceptions/global-exception.filter';
 import { PrismaExceptionFilter } from '@/common/exceptions/prisma-exception.filter';
 import { ResponseInterceptor } from './common/interceptors/response.interceptor';
+import cookieParser from 'cookie-parser';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
   app.enableShutdownHooks();
+
+  app.use(cookieParser());
 
   app.enableCors({
     origin: 'http://localhost:3000',

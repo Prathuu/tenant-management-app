@@ -28,19 +28,26 @@ export class JwtAuthGuard implements CanActivate {
     }
 
     const request = context.switchToHttp().getRequest();
+
+    // 🔑 Extract token from cookie OR header
+    const cookieToken = request.cookies?.access_token;
     const authHeader = request.headers.authorization;
 
-    if (!authHeader) {
-      throw new UnauthorizedException('Missing Authorization header');
+    let token: string | undefined;
+
+    if (cookieToken) {
+      token = cookieToken;
+    } else if (authHeader) {
+      const parts = authHeader.split(' ');
+
+      if (parts.length === 2 && parts[0] === 'Bearer') {
+        token = parts[1];
+      }
     }
 
-    const parts = authHeader.split(' ');
-
-    if (parts.length !== 2 || parts[0] !== 'Bearer') {
-      throw new UnauthorizedException('Invalid Authorization format');
+    if (!token) {
+      throw new UnauthorizedException('Missing authentication token');
     }
-
-    const token = parts[1];
 
     try {
       const payload = this.jwtService.verify<JwtUser>(token);
