@@ -59,7 +59,7 @@ export function Sidebar() {
                 ${
                   isActive
                     ? "text-[color:var(--primary-color)]"
-                    : "text-white/80"
+                    : "text-[var(--text-secondary)]"
                 }
                 `}
               >

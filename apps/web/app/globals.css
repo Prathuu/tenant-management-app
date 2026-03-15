@@ -1,9 +1,36 @@
 @import "tailwindcss";
 
+/* ===============================
+   Global Design Tokens
+================================ */
+
 :root {
+  /* Accent palette */
   --primary: 139 92 246;
   --ring: 167 139 250;
 
+  --primary-color: rgb(var(--primary));
+
+  /* Background */
+  --bg-start: #020617;
+  --bg-end: #0f172a;
+
+  /* Text */
+  --text-primary: #ffffff;
+  --text-secondary: #94a3b8;
+
+  /* Glass */
+  --glass-bg: rgba(255,255,255,0.08);
+  --glass-border: rgba(255,255,255,0.18);
+
+  /* Cursor lighting */
+  --mouse-x: 50vw;
+  --mouse-y: 50vh;
+  --light-radius: 720px;
+  --light-strength: 0.25;
+  --light-soft: 0.12;
+
+  /* Palette preview colors */
   --violet-preview: 139 92 246;
   --blue-preview: 59 130 246;
   --emerald-preview: 16 185 129;
@@ -11,55 +38,150 @@
   --rose-preview: 244 63 94;
 }
 
-:root {
-  --primary: 139 92 246;
-  --ring: 167 139 250;
+/* ===============================
+   Light Theme Overrides
+================================ */
 
-  --primary-color: rgb(var(--primary));
+.light {
+  --bg-start: #f1f5f9;
+  --bg-end: #e2e8f0;
+
+  --text-primary: #0f172a;
+  --text-secondary: #475569;
+
+  --glass-bg: rgba(255,255,255,0.6);
+  --glass-border: rgba(0,0,0,0.1);
 }
+
+/* ===============================
+   Base Layout
+================================ */
 
 body {
   min-height: 100vh;
-  color: white;
+  color: var(--text-primary);
 
   background:
     radial-gradient(
-      600px circle at 20% 20%,
-      rgba(var(--primary), 0.15),
-      transparent 60%
+      700px circle at 20% 20%,
+      rgb(var(--primary) / 0.14),
+      transparent
     ),
-
     radial-gradient(
-      800px circle at 80% 80%,
-      rgba(var(--primary), 0.08),
-      transparent 60%
+      900px circle at 80% 80%,
+      rgb(var(--primary) / 0.08),
+      transparent
     ),
-
     linear-gradient(
       135deg,
-      #020617,
-      #0f172a
+      var(--bg-start),
+      var(--bg-end)
     );
 }
 
-/* Cursor light variables */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 2;
 
-:root {
-  --mouse-x: 50vw;
-  --mouse-y: 50vh;
+  background-image: url("https://grainy-gradients.vercel.app/noise.svg");
+  opacity: 0.04;
 }
 
-/* Global cursor lighting layer */
+/* Slightly softer ambient glow in light mode */
+
+.light body {
+  background:
+    radial-gradient(
+      600px circle at 20% 20%,
+      rgba(var(--primary), 0.12),
+      transparent
+    ),
+    radial-gradient(
+      800px circle at 80% 80%,
+      rgba(var(--primary), 0.06),
+      transparent
+    ),
+    linear-gradient(
+      135deg,
+      var(--bg-start),
+      var(--bg-end)
+    );
+}
+
+/* ===============================
+   Global Cursor Lighting Layer
+================================ */
 
 .cursor-light-layer {
   position: fixed;
   inset: 0;
   pointer-events: none;
-  z-index: 1;
+  z-index: 999;
 
-  background: radial-gradient(
-    500px circle at var(--mouse-x) var(--mouse-y),
-    rgba(var(--primary), 0.25),
-    transparent 60%
-  );
+  background:
+    radial-gradient(
+      900px circle at var(--mouse-x) var(--mouse-y),
+      rgb(var(--primary) / 0.12),
+      rgb(var(--primary) / 0.06) 25%,
+      transparent 60%
+    ),
+    radial-gradient(
+      700px circle at var(--mouse-x) var(--mouse-y),
+      rgba(255,255,255,0.10),
+      rgba(255,255,255,0.05) 30%,
+      transparent 65%
+    );
+
+  transition: background 0.15s ease-out;
+}
+
+.dark .cursor-light-layer {
+  background:
+    radial-gradient(
+      900px circle at var(--mouse-x) var(--mouse-y),
+      rgb(var(--primary) / 0.10),
+      rgb(var(--primary) / 0.04) 30%,
+      transparent 65%
+    ),
+    radial-gradient(
+      700px circle at var(--mouse-x) var(--mouse-y),
+      rgba(255,255,255,0.08),
+      rgba(255,255,255,0.04) 40%,
+      transparent 70%
+    );
+}
+
+.light .cursor-light-layer {
+  background:
+    radial-gradient(
+      900px circle at var(--mouse-x) var(--mouse-y),
+      rgb(var(--primary) / 0.18),
+      rgb(var(--primary) / 0.10) 30%,
+      transparent 70%
+    ),
+    radial-gradient(
+      700px circle at var(--mouse-x) var(--mouse-y),
+      rgba(255,255,255,0.15),
+      rgba(255,255,255,0.08) 40%,
+      transparent 75%
+    );
+}
+
+/* ===============================
+   Utility Classes
+================================ */
+
+.glass-panel {
+  backdrop-filter: blur(20px);
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+}
+
+.glass-card {
+  backdrop-filter: blur(16px);
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
 }
