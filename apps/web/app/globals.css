@@ -2,6 +2,12 @@
 
 :root {
   --primary: 139 92 246;
+  --ring: 167 139 250;
+   --violet-preview: 139 92 246;
+  --blue-preview: 59 130 246;
+  --emerald-preview: 16 185 129;
+  --amber-preview: 245 158 11;
+  --rose-preview: 244 63 94;
 }
 
 body {
