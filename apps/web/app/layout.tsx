@@ -1,5 +1,6 @@
 import "./globals.css";
 import { ThemeProvider } from "@/providers/theme-provider";
+import { CursorLight } from "@/components/glass/cursor-light";
 
 export default function RootLayout({
   children,
@@ -9,7 +10,11 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body>
-        <ThemeProvider>{children}</ThemeProvider>
+        <ThemeProvider>
+          <CursorLight />
+
+          {children}
+        </ThemeProvider>
       </body>
     </html>
   );

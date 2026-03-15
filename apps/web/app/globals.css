@@ -28,3 +28,25 @@ body {
     radial-gradient(circle at 40% 70%, rgba(16,185,129,0.08), transparent),
     linear-gradient(135deg,#020617,#0f172a);
 }
+
+body {
+  --mouse-x: 50%;
+  --mouse-y: 50%;
+}
+
+.glass-light {
+  position: relative;
+}
+
+.glass-light::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+
+  background: radial-gradient(
+    600px circle at var(--mouse-x) var(--mouse-y),
+    rgba(255,255,255,0.08),
+    transparent 40%
+  );
+}

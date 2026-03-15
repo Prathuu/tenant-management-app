@@ -2,6 +2,7 @@ export function GlassPanel({ children }: { children: React.ReactNode }) {
   return (
     <div
       className="
+      glass-light
       backdrop-blur-2xl
       bg-white/5
       border border-white/10
