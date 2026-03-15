@@ -46,11 +46,10 @@ export function Sidebar() {
                 px-3 py-2
                 rounded-lg
                 transition
-                hover:bg-white/10
                 ${
                   isActive
-                    ? "bg-[rgb(var(--primary))] text-[rgb(var(--primary))/0.25]"
-                    : ""
+                    ? "bg-[rgb(var(--primary))] text-[rgb(var(--primary))/0.25]]"
+                    : "hover:bg-white/10"
                 }
                 `}
               >
