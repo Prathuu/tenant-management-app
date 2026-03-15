@@ -5,11 +5,11 @@ import { useEffect } from "react";
 export function CursorLight() {
   useEffect(() => {
     function handleMouseMove(e: MouseEvent) {
-      const x = e.clientX;
-      const y = e.clientY;
+      const x = e.pageX;
+      const y = e.pageY;
 
-      document.body.style.setProperty("--mouse-x", `${x}px`);
-      document.body.style.setProperty("--mouse-y", `${y}px`);
+      document.documentElement.style.setProperty("--mouse-x", `${x}px`);
+      document.documentElement.style.setProperty("--mouse-y", `${y}px`);
     }
 
     window.addEventListener("mousemove", handleMouseMove);
