@@ -4,20 +4,16 @@ import { useEffect } from "react";
 
 export function CursorLight() {
   useEffect(() => {
-    function handleMouseMove(e: MouseEvent) {
-      const x = e.clientX;
-      const y = e.clientY;
+    function move(e: MouseEvent) {
+      document.documentElement.style.setProperty("--mouse-x", `${e.clientX}px`);
 
-      document.body.style.setProperty("--mouse-x", `${x}px`);
-      document.body.style.setProperty("--mouse-y", `${y}px`);
+      document.documentElement.style.setProperty("--mouse-y", `${e.clientY}px`);
     }
 
-    window.addEventListener("mousemove", handleMouseMove);
+    window.addEventListener("mousemove", move);
 
-    return () => {
-      window.removeEventListener("mousemove", handleMouseMove);
-    };
+    return () => window.removeEventListener("mousemove", move);
   }, []);
 
-  return null;
+  return <div className="cursor-light-layer" />;
 }
