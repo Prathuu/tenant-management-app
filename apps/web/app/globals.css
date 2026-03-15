@@ -1,36 +1,30 @@
 @import "tailwindcss";
 
-/* ===============================
-   Global Design Tokens
-================================ */
+/* =========================================
+   Design Tokens
+========================================= */
 
 :root {
-  /* Accent palette */
+  /* palette */
   --primary: 139 92 246;
-  --ring: 167 139 250;
 
-  --primary-color: rgb(var(--primary));
-
-  /* Background */
-  --bg-start: #020617;
-  --bg-end: #0f172a;
-
-  /* Text */
+  /* text */
   --text-primary: #ffffff;
   --text-secondary: #94a3b8;
 
-  /* Glass */
+  /* background */
+  --bg-start: #020617;
+  --bg-end: #0f172a;
+
+  /* glass */
   --glass-bg: rgba(255,255,255,0.08);
   --glass-border: rgba(255,255,255,0.18);
 
-  /* Cursor lighting */
+  /* lighting */
   --mouse-x: 50vw;
   --mouse-y: 50vh;
-  --light-radius: 720px;
-  --light-strength: 0.25;
-  --light-soft: 0.12;
 
-  /* Palette preview colors */
+  /* palette preview */
   --violet-preview: 139 92 246;
   --blue-preview: 59 130 246;
   --emerald-preview: 16 185 129;
@@ -38,24 +32,31 @@
   --rose-preview: 244 63 94;
 }
 
-/* ===============================
-   Light Theme Overrides
-================================ */
+
+/* =========================================
+   Light Theme
+========================================= */
 
 .light {
-  --bg-start: #f1f5f9;
-  --bg-end: #e2e8f0;
-
   --text-primary: #0f172a;
   --text-secondary: #475569;
 
-  --glass-bg: rgba(255,255,255,0.6);
-  --glass-border: rgba(0,0,0,0.1);
+  --bg-start: #f1f5f9;
+  --bg-end: #e2e8f0;
+
+  --glass-bg: rgba(255,255,255,0.35);
+  --glass-border: rgba(0,0,0,0.08);
 }
 
-/* ===============================
+.light .glass-panel,
+.light .glass-card {
+  backdrop-filter: blur(24px);
+}
+
+
+/* =========================================
    Base Layout
-================================ */
+========================================= */
 
 body {
   min-height: 100vh;
@@ -79,109 +80,136 @@ body {
     );
 }
 
+
+/* =========================================
+   Grain Texture (Glass Realism)
+========================================= */
+
 body::before {
   content: "";
   position: fixed;
   inset: 0;
   pointer-events: none;
-  z-index: 2;
+  z-index: 1;
 
   background-image: url("https://grainy-gradients.vercel.app/noise.svg");
-  opacity: 0.04;
+  background-repeat: repeat;
+
+  opacity: 0.035;
 }
 
-/* Slightly softer ambient glow in light mode */
 
-.light body {
-  background:
-    radial-gradient(
-      600px circle at 20% 20%,
-      rgba(var(--primary), 0.12),
-      transparent
-    ),
-    radial-gradient(
-      800px circle at 80% 80%,
-      rgba(var(--primary), 0.06),
-      transparent
-    ),
-    linear-gradient(
-      135deg,
-      var(--bg-start),
-      var(--bg-end)
-    );
-}
-
-/* ===============================
-   Global Cursor Lighting Layer
-================================ */
+/* =========================================
+   Cursor Ambient Lighting
+========================================= */
 
 .cursor-light-layer {
   position: fixed;
   inset: 0;
   pointer-events: none;
-  z-index: 999;
+
+  z-index: 20;
 
   background:
     radial-gradient(
       900px circle at var(--mouse-x) var(--mouse-y),
       rgb(var(--primary) / 0.12),
-      rgb(var(--primary) / 0.06) 25%,
-      transparent 60%
+      rgb(var(--primary) / 0.05) 35%,
+      transparent 70%
     ),
     radial-gradient(
       700px circle at var(--mouse-x) var(--mouse-y),
       rgba(255,255,255,0.10),
-      rgba(255,255,255,0.05) 30%,
-      transparent 65%
-    );
-
-  transition: background 0.15s ease-out;
-}
-
-.dark .cursor-light-layer {
-  background:
-    radial-gradient(
-      900px circle at var(--mouse-x) var(--mouse-y),
-      rgb(var(--primary) / 0.10),
-      rgb(var(--primary) / 0.04) 30%,
-      transparent 65%
-    ),
-    radial-gradient(
-      700px circle at var(--mouse-x) var(--mouse-y),
-      rgba(255,255,255,0.08),
-      rgba(255,255,255,0.04) 40%,
-      transparent 70%
-    );
-}
-
-.light .cursor-light-layer {
-  background:
-    radial-gradient(
-      900px circle at var(--mouse-x) var(--mouse-y),
-      rgb(var(--primary) / 0.18),
-      rgb(var(--primary) / 0.10) 30%,
-      transparent 70%
-    ),
-    radial-gradient(
-      700px circle at var(--mouse-x) var(--mouse-y),
-      rgba(255,255,255,0.15),
-      rgba(255,255,255,0.08) 40%,
+      rgba(255,255,255,0.04) 45%,
       transparent 75%
     );
+
+  transition: background 0.18s ease-out;
 }
 
-/* ===============================
-   Utility Classes
-================================ */
+
+/* =========================================
+   Glass Panels
+========================================= */
 
 .glass-panel {
+  position: relative;
+  z-index: 5;
+
   backdrop-filter: blur(20px);
   background: var(--glass-bg);
   border: 1px solid var(--glass-border);
+  border-radius: 16px;
 }
 
+.glass-panel::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+
+  background: linear-gradient(
+    120deg,
+    rgba(255,255,255,0.18),
+    rgba(255,255,255,0.05) 40%,
+    transparent 60%
+  );
+
+  opacity: 0.35;
+}
+
+
+/* =========================================
+   Glass Cards
+========================================= */
+
 .glass-card {
-  backdrop-filter: blur(16px);
+  position: relative;
+  z-index: 5;
+
+  backdrop-filter: blur(18px);
   background: var(--glass-bg);
   border: 1px solid var(--glass-border);
+  border-radius: 14px;
+}
+
+.glass-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 15px 35px rgba(0,0,0,0.25);
+}
+
+
+/* =========================================
+   Glass Reflection (Dynamic Lighting)
+========================================= */
+
+.glass-reflect {
+  position: relative;
+  overflow: hidden;
+}
+
+.glass-reflect::after {
+  content: "";
+  position: absolute;
+  inset: -40%;
+  pointer-events: none;
+
+  background: radial-gradient(
+    600px circle at var(--mouse-x) var(--mouse-y),
+    rgba(255,255,255,0.14),
+    rgba(255,255,255,0.06) 25%,
+    transparent 60%
+  );
+
+  opacity: 0.35;
+  transition: opacity 0.25s ease;
+}
+
+.dark .glass-reflect::after {
+  opacity: 0.22;
+}
+
+.glass-reflect:hover::after {
+  opacity: 0.45;
 }
