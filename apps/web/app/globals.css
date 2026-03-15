@@ -23,16 +23,25 @@ body {
   color: white;
 
   background:
-    radial-gradient(circle at 10% 20%, rgba(139,92,246,0.15), transparent),
-    radial-gradient(circle at 90% 80%, rgba(59,130,246,0.15), transparent),
-    radial-gradient(circle at 40% 70%, rgba(16,185,129,0.08), transparent),
-    linear-gradient(135deg,#020617,#0f172a);
+    radial-gradient(
+      600px circle at 20% 20%,
+      rgba(var(--primary), 0.15),
+      transparent 60%
+    ),
+
+    radial-gradient(
+      800px circle at 80% 80%,
+      rgba(var(--primary), 0.08),
+      transparent 60%
+    ),
+
+    linear-gradient(
+      135deg,
+      #020617,
+      #0f172a
+    );
 }
 
-/* body {
-  --mouse-x: 50%;
-  --mouse-y: 50%;
-} */
 /* Cursor light variables */
 
 :root {
@@ -50,7 +59,7 @@ body {
 
   background: radial-gradient(
     500px circle at var(--mouse-x) var(--mouse-y),
-    rgba(255,255,255,0.05),
+    rgba(var(--primary), 0.25),
     transparent 60%
   );
 }
