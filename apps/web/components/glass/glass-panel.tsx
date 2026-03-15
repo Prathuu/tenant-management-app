@@ -2,6 +2,8 @@ export function GlassPanel({ children }: { children: React.ReactNode }) {
   return (
     <div
       className="
+      glass-panel
+      glass-reflect
 relative
 z-10
 backdrop-blur-2xl

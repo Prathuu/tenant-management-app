@@ -11,6 +11,8 @@ export function GlassCard({ children }: { children: React.ReactNode }) {
       onMouseMove={handleMove}
       onMouseLeave={reset}
       className="
+      glass-card
+      glass-reflect
 relative
 z-10
 backdrop-blur-xl
