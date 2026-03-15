@@ -11,7 +11,7 @@ export function GlassCard({ children }: { children: React.ReactNode }) {
       onMouseMove={handleMove}
       onMouseLeave={reset}
       className="
-      glass-light
+      
       backdrop-blur-xl
       bg-white/15
       border border-white/20
@@ -20,6 +20,7 @@ export function GlassCard({ children }: { children: React.ReactNode }) {
       p-6
       transition-transform duration-200
       will-change-transform
+      relative z-10
       "
     >
       {children}
