@@ -1,13 +1,13 @@
-import { GlassCard } from "@/components/glass/glass-card";
+import { StatCard } from "@/components/dashboard/stat-card";
 
 export default function Page() {
   return (
     <div className="grid grid-cols-3 gap-6">
-      <GlassCard>Total Tenants</GlassCard>
+      <StatCard title="Total Tenants" value="128" />
 
-      <GlassCard>Vacant Rooms</GlassCard>
+      <StatCard title="Vacant Rooms" value="12" />
 
-      <GlassCard>Monthly Revenue</GlassCard>
+      <StatCard title="Monthly Revenue" value="₹2,30,000" />
     </div>
   );
 }

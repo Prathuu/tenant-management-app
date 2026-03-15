@@ -10,7 +10,18 @@ export function Topbar() {
         <div className="flex items-center gap-4">
           <PaletteSwitcher />
 
-          <button>Logout</button>
+          <button
+            className="
+px-4 py-2
+rounded-lg
+text-white
+bg-[color:var(--primary-color)]
+hover:opacity-90
+transition
+"
+          >
+            Logout
+          </button>
         </div>
       </div>
     </GlassPanel>
