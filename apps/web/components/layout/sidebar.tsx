@@ -47,10 +47,9 @@ export function Sidebar() {
                 rounded-lg
                 transition
                 hover:bg-white/10
-
                 ${
                   isActive
-                    ? "bg-[rgb(var(--primary))/0.25] text-[rgb(var(--primary))]"
+                    ? "bg-[rgb(var(--primary))] text-[rgb(var(--primary))/0.25]"
                     : ""
                 }
                 `}
