@@ -1,6 +1,6 @@
 import { GlassPanel } from "../glass/glass-panel";
 import { PaletteSwitcher } from "../glass/palette-switcher";
-
+import { ThemeToggle } from "../glass/theme-toggle";
 export function Topbar() {
   return (
     <GlassPanel>
@@ -8,6 +8,7 @@ export function Topbar() {
         <h2 className="text-lg font-semibold">Dashboard</h2>
 
         <div className="flex items-center gap-4">
+          <ThemeToggle />
           <PaletteSwitcher />
 
           <button

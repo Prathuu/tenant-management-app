@@ -1,6 +1,7 @@
-import "./globals.css";
 import { ThemeProvider } from "@/providers/theme-provider";
 import { CursorLight } from "@/components/glass/cursor-light";
+import "./globals.css";
+import { ReactQueryProvider } from "@/providers/react-query-provider";
 
 export default function RootLayout({
   children,
@@ -10,11 +11,13 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body>
-        <ThemeProvider>
-          <CursorLight />
+        <ReactQueryProvider>
+          <ThemeProvider>
+            <CursorLight />
 
-          {children}
-        </ThemeProvider>
+            {children}
+          </ThemeProvider>
+        </ReactQueryProvider>
       </body>
     </html>
   );

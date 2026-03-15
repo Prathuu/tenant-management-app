@@ -4,11 +4,18 @@ import { useEffect } from "react";
 
 export function CursorLight() {
   useEffect(() => {
-    function move(e: MouseEvent) {
-      document.documentElement.style.setProperty("--mouse-x", `${e.clientX}px`);
-
-      document.documentElement.style.setProperty("--mouse-y", `${e.clientY}px`);
-    }
+    const move = (e: MouseEvent) => {
+      requestAnimationFrame(() => {
+        document.documentElement.style.setProperty(
+          "--mouse-x",
+          `${e.clientX}px`,
+        );
+        document.documentElement.style.setProperty(
+          "--mouse-y",
+          `${e.clientY}px`,
+        );
+      });
+    };
 
     window.addEventListener("mousemove", move);
 
