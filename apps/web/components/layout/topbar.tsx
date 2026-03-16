@@ -12,7 +12,7 @@ export function Topbar() {
         <div className="flex items-center gap-4">
           <ThemeToggle />
           <PaletteSwitcher />
-          <GlassButton>Logout</GlassButton>
+          <GlassButton appearance="filled">Logout</GlassButton>
         </div>
       </div>
     </GlassPanel>
