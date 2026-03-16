@@ -2,7 +2,6 @@ import { GlassButton } from "../glass/glass-button";
 import { GlassPanel } from "../glass/glass-panel";
 import { PaletteSwitcher } from "../glass/palette-switcher";
 import { ThemeToggle } from "../glass/theme-toggle";
-import { Button } from "../ui/button";
 export function Topbar() {
   return (
     <GlassPanel>
