@@ -1,6 +1,8 @@
+import { GlassButton } from "../glass/glass-button";
 import { GlassPanel } from "../glass/glass-panel";
 import { PaletteSwitcher } from "../glass/palette-switcher";
 import { ThemeToggle } from "../glass/theme-toggle";
+import { Button } from "../ui/button";
 export function Topbar() {
   return (
     <GlassPanel>
@@ -10,19 +12,7 @@ export function Topbar() {
         <div className="flex items-center gap-4">
           <ThemeToggle />
           <PaletteSwitcher />
-
-          <button
-            className="
-px-4 py-2
-rounded-lg
-text-white
-bg-[color:var(--primary-color)]
-hover:opacity-90
-transition
-"
-          >
-            Logout
-          </button>
+          <GlassButton>Logout</GlassButton>
         </div>
       </div>
     </GlassPanel>

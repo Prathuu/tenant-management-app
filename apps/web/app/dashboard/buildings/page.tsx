@@ -8,6 +8,12 @@ export default function Page() {
       <StatCard title="Vacant Rooms" value="12" />
 
       <StatCard title="Monthly Revenue" value="₹2,30,000" />
+
+      <StatCard title="Total Tenants" value="128" />
+
+      <StatCard title="Vacant Rooms" value="12" />
+
+      <StatCard title="Monthly Revenue" value="₹2,30,000" />
     </div>
   );
 }
