@@ -84,10 +84,14 @@ export function Sidebar() {
                               : "text-muted-foreground hover:bg-white/10"
                           }
                         `}
-                        icon={<item.icon size={16} />}
-                        iconPosition="left"
                       >
-                        <Link href={item.href}>{item.name}</Link>
+                        <Link
+                          href={item.href}
+                          className="flex items-center gap-3"
+                        >
+                          <item.icon size={16} />
+                          {item.name}
+                        </Link>
                       </GlassButton>
                     );
                   })}
