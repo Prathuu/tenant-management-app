@@ -3,7 +3,14 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
-import { ChevronDown, LayoutDashboard } from "lucide-react";
+import {
+  Building,
+  ChevronDown,
+  CreditCard,
+  Home,
+  LayoutDashboard,
+  Users,
+} from "lucide-react";
 
 import { GlassPanel } from "../glass/glass-panel";
 import { GlassButton } from "../glass/glass-button";
@@ -13,10 +20,10 @@ const navItems = [
     name: "Dashboard",
     icon: LayoutDashboard,
     children: [
-      { name: "Overview", href: "/dashboard" },
-      { name: "Buildings", href: "/dashboard/buildings" },
-      { name: "Tenants", href: "/dashboard/tenants" },
-      { name: "Billing", href: "/dashboard/billing" },
+      { name: "Overview", href: "/dashboard", icon: Home },
+      { name: "Buildings", href: "/dashboard/buildings", icon: Building },
+      { name: "Tenants", href: "/dashboard/tenants", icon: Users },
+      { name: "Billing", href: "/dashboard/billing", icon: CreditCard },
     ],
   },
 ];
