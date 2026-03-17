@@ -1,4 +1,4 @@
-import { Sidebar } from "../layout/sidebar";
+import { Sidebar } from "../layout/sidebar/sidebar";
 import { Topbar } from "../layout/topbar";
 
 export function DashboardLayout({ children }: { children: React.ReactNode }) {
