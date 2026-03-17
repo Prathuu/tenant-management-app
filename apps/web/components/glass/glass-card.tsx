@@ -22,14 +22,7 @@ export function GlassCard({
         glass-reflect
         relative
         z-10
-
         backdrop-blur-xl
-        bg-(--glass-bg)
-
-        border
-        border-(--glass-border)
-        hover:border-[rgb(var(--primary)/0.4)]
-
         rounded-xl
         p-6
         `,
