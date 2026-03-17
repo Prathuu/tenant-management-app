@@ -2,11 +2,11 @@ import { GlassCard } from "../glass/glass-card";
 
 export function StatCard({ title, value }: { title: string; value: string }) {
   return (
-    <GlassCard>
+    <GlassCard className="border-none">
       <div className="flex flex-col gap-3">
-        <span className="text-sm text-[var(--text-secondary)]">{title}</span>
+        <span className="text-sm text-(--text-secondary)">{title}</span>
 
-        <span className="text-3xl font-semibold text-[var(--text-primary)]">
+        <span className="text-3xl font-semibold text-(--text-primary)">
           {value}
         </span>
 
