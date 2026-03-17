@@ -17,6 +17,7 @@ export function GlassButton({
   icon,
   iconPosition = "left",
   children,
+  asChild,
   ...props
 }: GlassButtonProps) {
   const styles = {
@@ -27,7 +28,6 @@ export function GlassButton({
       hover:brightness-90
       hover:shadow-[0_0_12px_rgb(var(--primary)/0.5)]
     `,
-
     outline: `
       glass
       border-[rgb(var(--primary))]
@@ -35,7 +35,6 @@ export function GlassButton({
       bg-transparent
       hover:bg-[rgb(var(--primary)/0.1)]
     `,
-
     text: `
       text-[rgb(var(--primary))]
       bg-transparent
@@ -43,23 +42,40 @@ export function GlassButton({
     `,
   };
 
+  // If using asChild, DON'T inject extra elements
+  if (asChild) {
+    return (
+      <Button
+        asChild
+        className={cn(
+          "cursor-pointer pb-0.75 px-4 rounded-2xl",
+          styles[appearance],
+          className,
+        )}
+        {...props}
+      >
+        {children}
+      </Button>
+    );
+  }
+
   return (
     <Button
       className={cn(
-        "cursor-pointer pb-[3px] px-4 rounded-2xl flex items-center gap-2",
+        "cursor-pointer pb-0.75 px-4 rounded-2xl flex items-center gap-2",
         styles[appearance],
         className,
       )}
       {...props}
     >
       {icon && iconPosition === "left" && (
-        <span className="flex items-center justify-center">{icon}</span>
+        <span className="flex items-center">{icon}</span>
       )}
 
       {children}
 
       {icon && iconPosition === "right" && (
-        <span className="flex items-center justify-center">{icon}</span>
+        <span className="flex items-center">{icon}</span>
       )}
     </Button>
   );

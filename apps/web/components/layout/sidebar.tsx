@@ -84,6 +84,8 @@ export function Sidebar() {
                               : "text-muted-foreground hover:bg-white/10"
                           }
                         `}
+                        icon={<item.icon size={16} />}
+                        iconPosition="left"
                       >
                         <Link href={item.href}>{item.name}</Link>
                       </GlassButton>
