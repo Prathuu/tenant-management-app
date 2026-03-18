@@ -3,8 +3,8 @@
 import { ReactNode } from "react";
 import { usePathname } from "next/navigation";
 import { Topbar } from "@/components/navigation/topbar";
-import { BottomNav } from "@/components/navigation/BottomNav";
 import { Sidebar } from "@/components/navigation/sidebar/sidebar";
+import { BottomNav } from "../navigation/BottomNav";
 
 export default function AppShell({ children }: { children: ReactNode }) {
   const pathname = usePathname();
