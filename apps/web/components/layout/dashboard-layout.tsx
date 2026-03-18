@@ -1,5 +1,5 @@
-import { Sidebar } from "./sidebar/sidebar";
-import { Topbar } from "./topbar";
+import { Sidebar } from "../navigation/sidebar/sidebar";
+import { Topbar } from "../navigation/topbar";
 
 export function DashboardLayout({ children }: { children: React.ReactNode }) {
   return (
