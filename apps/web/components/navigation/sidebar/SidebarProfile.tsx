@@ -4,12 +4,12 @@ export function SidebarProfile({ collapsed }: { collapsed: boolean }) {
       <div
         className={`
           glass
-          rounded-xl
           p-3
           flex items-center gap-3
           hover:bg-white/5
           transition
           ${collapsed ? "justify-center" : ""}
+          border-y border-white/10
         `}
       >
         <div className="size-8 rounded-full profile-mini overflow-hidden">

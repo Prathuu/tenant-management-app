@@ -8,30 +8,58 @@ import { SidebarProfile } from "./SidebarProfile";
 import { SidebarNav } from "./SidebarNav";
 import { SidebarFooter } from "./SidebarFooter";
 
-export function Sidebar() {
+type SidebarProps = {
+  isMobile?: boolean;
+  open?: boolean;
+  onClose?: () => void;
+};
+
+export function Sidebar({ isMobile, open, onClose }: SidebarProps) {
   const [collapsed, setCollapsed] = useState(false);
 
+  // Mobile: don't render if closed
+  if (isMobile && !open) return null;
+
+  const isCollapsed = isMobile ? false : collapsed;
+
   return (
-    <GlassPanel>
+    <>
+      {/* Mobile Overlay */}
+      {isMobile && (
+        <div
+          className="fixed inset-0 z-90 bg-black/40 backdrop-blur-sm"
+          onClick={onClose}
+        />
+      )}
+
       <div
         className={`
-          h-[calc(100vh-3rem)]
-          flex flex-col
-          transition-all duration-300
-          ${collapsed ? "w-20 items-center py-4" : "w-64 p-2"}
-        `}
+        ${isMobile ? "fixed left-0 top-0 h-full z-100" : "relative"}
+      `}
       >
-        <SidebarHeader
-          collapsed={collapsed}
-          toggle={() => setCollapsed(!collapsed)}
-        />
+        <GlassPanel>
+          <div
+            className={`
+              h-screen
+              flex flex-col
+              transition-all duration-300
+              ${isCollapsed ? "w-20 items-center py-4" : "w-64 p-2"}
+            `}
+          >
+            <SidebarHeader
+              collapsed={isCollapsed}
+              isMobile={isMobile}
+              toggle={() => {
+                if (!isMobile) setCollapsed(!collapsed); // Only allow collapsing on desktop
+              }}
+            />
 
-        <SidebarProfile collapsed={collapsed} />
-
-        <SidebarNav collapsed={collapsed} />
-
-        <SidebarFooter collapsed={collapsed} />
+            <SidebarProfile collapsed={isCollapsed} />
+            <SidebarNav collapsed={isCollapsed} />
+            <SidebarFooter collapsed={isCollapsed} />
+          </div>
+        </GlassPanel>
       </div>
-    </GlassPanel>
+    </>
   );
 }

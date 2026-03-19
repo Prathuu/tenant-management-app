@@ -7,7 +7,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
       <Sidebar />
 
       <div className="flex-1 flex flex-col gap-6">
-        <Topbar />
+        <Topbar title="Dashboard" />
 
         <div className="flex-1">{children}</div>
       </div>
