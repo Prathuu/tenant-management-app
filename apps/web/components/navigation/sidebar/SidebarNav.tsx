@@ -2,7 +2,15 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutDashboard, Home, Building, Users, Receipt } from "lucide-react";
+import {
+  Home,
+  Building,
+  Users,
+  Receipt,
+  BedDouble,
+  CircleGauge,
+  Layers,
+} from "lucide-react";
 
 import { GlassButton } from "@/components/glass/glass-button";
 
@@ -11,6 +19,9 @@ const items = [
   { name: "Buildings", href: "/dashboard/buildings", icon: Building },
   { name: "Tenants", href: "/dashboard/tenants", icon: Users },
   { name: "Billing", href: "/dashboard/billing", icon: Receipt },
+  { name: "Rooms", href: "/dashboard/rooms", icon: BedDouble },
+  { name: "Meters", href: "/dashboard/meters", icon: CircleGauge },
+  { name: "Floors", href: "/dashboard/floors", icon: Layers },
 ];
 
 export function SidebarNav({ collapsed }: { collapsed: boolean }) {
