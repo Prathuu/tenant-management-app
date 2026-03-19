@@ -29,7 +29,7 @@ export default function AppShell({ children }: { children: ReactNode }) {
         <Topbar />
 
         {/* Content */}
-        <main className="flex-1 overflow-y-auto">{children}</main>
+        <main className="flex-1 overflow-y-auto p-5">{children}</main>
 
         {/* Mobile Bottom Nav */}
         <div className="md:hidden">
