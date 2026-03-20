@@ -1,5 +1,3 @@
-// components/empty-state.tsx
-
 import { GlassCard } from "@/components/glass/glass-card";
 import { Button } from "@/components/ui/button";
 
