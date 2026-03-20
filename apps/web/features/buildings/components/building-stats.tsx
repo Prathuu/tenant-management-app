@@ -1,27 +1,53 @@
 import { GlassCard } from "@/components/glass/glass-card";
 import { Building } from "../buildings.types";
 
-export const BuildingsStats = ({ data }: { data: Building[] }) => {
-  const totalBuildings = data.length;
-  const totalUnits = data.reduce((acc, b) => acc + b.totalUnits, 0);
-  const occupied = data.reduce((acc, b) => acc + b.occupiedUnits, 0);
-  const vacant = data.reduce((acc, b) => acc + b.vacantUnits, 0);
-
-  const stats = [
-    { label: "Buildings", value: totalBuildings },
-    { label: "Units", value: totalUnits },
-    { label: "Occupied", value: occupied },
-    { label: "Vacant", value: vacant },
-  ];
+export const BuildingCard = ({ building }: { building: Building }) => {
+  const occupancy =
+    building.totalUnits > 0
+      ? (building.occupiedUnits / building.totalUnits) * 100
+      : 0;
 
   return (
-    <div className="grid grid-cols-4 gap-4">
-      {stats.map((stat) => (
-        <GlassCard key={stat.label} className="p-4">
-          <p className="text-sm text-muted-foreground">{stat.label}</p>
-          <p className="text-2xl font-semibold">{stat.value}</p>
-        </GlassCard>
-      ))}
-    </div>
+    <GlassCard className="p-4 space-y-4 hover:scale-[1.02] transition cursor-pointer">
+      {/* Top */}
+      <div>
+        <h3 className="font-semibold text-base">{building.name}</h3>
+        <p className="text-xs text-muted-foreground">{building.address}</p>
+      </div>
+
+      {/* Mid stats */}
+      <div className="text-sm grid grid-cols-2 gap-y-1">
+        <span className="text-muted-foreground">Units</span>
+        <span className="text-right">{building.totalUnits}</span>
+
+        <span className="text-muted-foreground">Occupied</span>
+        <span className="text-right text-green-500">
+          {building.occupiedUnits}
+        </span>
+
+        <span className="text-muted-foreground">Vacant</span>
+        <span className="text-right text-red-500">{building.vacantUnits}</span>
+      </div>
+
+      {/* Occupancy bar */}
+      <div className="space-y-1">
+        <div className="flex justify-between text-xs text-muted-foreground">
+          <span>Occupancy</span>
+          <span>{Math.round(occupancy)}%</span>
+        </div>
+
+        <div className="h-2 bg-muted rounded-full overflow-hidden">
+          <div
+            className="h-full bg-primary transition-all"
+            style={{ width: `${occupancy}%` }}
+          />
+        </div>
+      </div>
+
+      {/* Bottom */}
+      <div className="text-sm font-medium">
+        ₹{building.monthlyRevenue.toLocaleString()}
+      </div>
+    </GlassCard>
   );
 };
