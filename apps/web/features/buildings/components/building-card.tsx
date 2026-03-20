@@ -1,3 +1,5 @@
+// components/building-card.tsx
+
 import { GlassCard } from "@/components/glass/glass-card";
 import { Building } from "../buildings.types";
 

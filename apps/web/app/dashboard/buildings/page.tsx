@@ -1,19 +1,32 @@
-import { StatCard } from "@/components/shared/stat-card";
+// app/dashboard/buildings/page.tsx
 
-export default function Page() {
+"use client";
+
+import { BuildingsHeader } from "@/features/buildings/components/buildings-header";
+import { BuildingStats } from "@/features/buildings/components/building-stats";
+import { BuildingsGrid } from "@/features/buildings/components/buildings-grid";
+import { EmptyState } from "@/features/buildings/components/empty-state";
+import { useBuildings } from "@/features/buildings/buildings.hooks";
+
+export default function BuildingsPage() {
+  const { data, isLoading } = useBuildings();
+
+  if (isLoading) return <div>Loading...</div>;
+
+  if (!data || data.length === 0) {
+    return (
+      <div className="space-y-6">
+        <BuildingsHeader />
+        <EmptyState />
+      </div>
+    );
+  }
+
   return (
-    <div className="grid grid-cols-3 gap-6">
-      <StatCard title="Total Tenants" value="128" />
-
-      <StatCard title="Vacant Rooms" value="12" />
-
-      <StatCard title="Monthly Revenue" value="₹2,30,000" />
-
-      <StatCard title="Total Tenants" value="128" />
-
-      <StatCard title="Vacant Rooms" value="12" />
-
-      <StatCard title="Monthly Revenue" value="₹2,30,000" />
+    <div className="space-y-6">
+      <BuildingsHeader />
+      <BuildingStats data={data} />
+      <BuildingsGrid data={data} />
     </div>
   );
 }
