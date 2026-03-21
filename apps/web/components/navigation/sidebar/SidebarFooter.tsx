@@ -2,6 +2,7 @@ import Link from "next/link";
 import { Settings, LogOut, Moon } from "lucide-react";
 
 import { GlassButton } from "@/components/glass/glass-button";
+import { logout } from "@/features/auth/auth.api";
 
 export function SidebarFooter({ collapsed }: { collapsed: boolean }) {
   return (
@@ -39,8 +40,9 @@ export function SidebarFooter({ collapsed }: { collapsed: boolean }) {
           ${collapsed ? "size-12 mx-auto" : "justify-start px-3 py-2"} rounded-full
           text-red-400 hover:bg-red-500/10
         `}
+        onClick={logout}
       >
-        <Link href="/logout">
+        <Link href="/login">
           <LogOut size={18} />
           {!collapsed && "Logout"}
         </Link>

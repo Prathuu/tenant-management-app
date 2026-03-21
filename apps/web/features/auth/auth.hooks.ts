@@ -9,7 +9,9 @@ export const useLogin = () => {
 
   return useMutation({
     mutationFn: login,
-
+    onError: (error: any) => {
+      alert(error?.response?.data?.message || "Login failed");
+    },
     onSuccess: () => {
       router.push("/dashboard/buildings");
     },
