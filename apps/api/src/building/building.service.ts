@@ -19,15 +19,51 @@ export class BuildingService {
 
   // Get all buildings
   async getAllBuildings() {
-    return this.prisma.building.findMany({
+    const buildings = await this.prisma.building.findMany({
       where: { deletedAt: null },
-      include: {
+      select: {
+        id: true,
+        name: true,
+
         floors: {
-          include: {
-            rooms: true,
+          select: {
+            rooms: {
+              select: {
+                id: true,
+                tenant: {
+                  select: { id: true },
+                },
+              },
+            },
           },
         },
       },
+    });
+
+    return buildings.map((building) => {
+      let totalRooms = 0;
+      let occupiedRooms = 0;
+      let totalTenants = 0;
+
+      building.floors.forEach((floor) => {
+        floor.rooms.forEach((room) => {
+          totalRooms++;
+
+          if (room.tenant) {
+            occupiedRooms++;
+            totalTenants++;
+          }
+        });
+      });
+
+      return {
+        id: building.id,
+        name: building.name,
+        totalRooms,
+        occupiedRooms,
+        vacantRooms: totalRooms - occupiedRooms,
+        totalTenants,
+      };
     });
   }
 
