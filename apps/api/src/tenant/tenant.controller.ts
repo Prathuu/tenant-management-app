@@ -12,6 +12,8 @@ import { CreateTenantDto } from './dto/create-tenant.dto';
 import { AddPersonDto } from './dto/add-person.dto';
 import { AssignRoomDto } from './dto/assign-room.dto';
 import { Roles } from '@/auth/roles.decorator';
+import { JwtUser } from '@/auth/types/jwt-user.type';
+import { CurrentUser } from '@/auth/decorators/current-user.decorator';
 
 @Controller()
 export class TenantController {
@@ -19,19 +21,22 @@ export class TenantController {
 
   @Post('tenants')
   @Roles('OWNER', 'MANAGER')
-  createTenant(@Body() dto: CreateTenantDto) {
-    return this.tenantService.createTenant(dto);
+  createTenant(@Body() dto: CreateTenantDto, @CurrentUser() user: JwtUser) {
+    return this.tenantService.createTenant(dto, user);
   }
 
   @Get('tenants')
   @Roles('OWNER', 'MANAGER')
-  getAllTenants() {
-    return this.tenantService.getAllTenants();
+  getAllTenants(@CurrentUser() user: JwtUser) {
+    return this.tenantService.getAllTenants(user);
   }
 
   @Get('tenants/:tenantId')
   @Roles('OWNER', 'MANAGER', 'TENANT')
-  getTenant(@Param('tenantId', ParseIntPipe) tenantId: number) {
+  getTenant(
+    @Param('tenantId', ParseIntPipe) tenantId: number,
+    @CurrentUser() user: JwtUser,
+  ) {
     return this.tenantService.getTenantById(tenantId);
   }
 
@@ -40,6 +45,7 @@ export class TenantController {
   addPerson(
     @Param('tenantId', ParseIntPipe) tenantId: number,
     @Body() dto: AddPersonDto,
+    @CurrentUser() user: JwtUser,
   ) {
     return this.tenantService.addPerson(tenantId, dto);
   }
