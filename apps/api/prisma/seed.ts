@@ -8,12 +8,12 @@ import {
   MaintenancePriority,
   MaintenanceStatus,
   UserRole,
+  MeterType,
 } from '@prisma/client';
 
 import * as bcrypt from 'bcrypt';
 
 const prisma = new PrismaClient();
-
 const SALT = 10;
 
 async function hash(password: string) {
@@ -29,17 +29,16 @@ function monthsLater(n: number) {
 }
 
 function generateEmail(name: string, building: string) {
-  const normalizedName = name.toLowerCase().replace(/\s+/g, '.'); // Tony Stark -> tony.stark
-
-  const normalizedBuilding = building.toLowerCase().replace(/\s+/g, ''); // Stark Tower -> starktower
-
-  return `${normalizedName}@${normalizedBuilding}.com`;
+  return `${name.toLowerCase().replace(/\s+/g, '.')}.${building
+    .toLowerCase()
+    .replace(/\s+/g, '')}@app.com`;
 }
 
 async function createUser(
   email: string,
   name: string,
   role: UserRole,
+  organizationId: number,
   tenantId?: number,
 ) {
   return prisma.user.create({
@@ -48,6 +47,7 @@ async function createUser(
       password: await hash('password123'),
       name,
       role,
+      organizationId,
       tenantId,
     },
   });
@@ -58,6 +58,7 @@ async function createMeterWithHistory(roomId: number, meterNumber: string) {
     data: {
       meterNumber,
       roomId,
+      type: MeterType.ELECTRICITY,
       isActive: true,
     },
   });
@@ -75,56 +76,61 @@ async function createMeterWithHistory(roomId: number, meterNumber: string) {
       },
     });
   }
-
-  return meter;
 }
 
 async function createTenantFlow(
   tenantName: string,
   phone: string,
-  roomId: number,
-  buildingName: string,
-  rent: number,
+  room: any,
+  building: any,
+  organizationId: number,
 ) {
   const tenant = await prisma.tenant.create({
     data: {
       fullName: tenantName,
       phone,
+      organizationId,
     },
   });
 
   await createUser(
-    generateEmail(tenantName, buildingName),
+    generateEmail(tenantName, building.name),
     tenantName,
     UserRole.TENANT,
+    organizationId,
     tenant.id,
   );
 
   const tenantRoom = await prisma.tenantRoom.create({
     data: {
       tenantId: tenant.id,
-      roomId,
-      agreedRent: rent,
+      roomId: room.id,
+      buildingId: building.id,
+      agreedRent: room.baseRent,
       startDate: monthsAgo(6),
     },
+  });
+
+  await prisma.room.update({
+    where: { id: room.id },
+    data: { isOccupied: true },
   });
 
   const lease = await prisma.lease.create({
     data: {
       tenantRoomId: tenantRoom.id,
-      rentAmount: rent,
-      depositAmount: rent * 2,
+      rentAmount: room.baseRent,
+      depositAmount: room.baseRent * 2,
       startDate: monthsAgo(6),
       endDate: monthsLater(6),
       status: LeaseStatus.ACTIVE,
     },
   });
 
-  // create invoices history
+  // invoices
   for (let i = 5; i >= 0; i--) {
     const electricity = 1000 + Math.random() * 2000;
-
-    const subtotal = rent + electricity;
+    const subtotal = room.baseRent + electricity;
 
     const invoice = await prisma.invoice.create({
       data: {
@@ -141,12 +147,11 @@ async function createTenantFlow(
             : i === 1
               ? InvoiceStatus.PARTIAL
               : InvoiceStatus.PAID,
-
         items: {
           create: [
             {
               description: 'Rent',
-              amount: rent,
+              amount: room.baseRent,
               type: PaymentType.RENT,
             },
             {
@@ -154,15 +159,6 @@ async function createTenantFlow(
               amount: electricity,
               type: PaymentType.ELECTRICITY,
             },
-            ...(i === 0
-              ? [
-                  {
-                    description: 'Penalty',
-                    amount: 500,
-                    type: PaymentType.PENALTY,
-                  },
-                ]
-              : []),
           ],
         },
       },
@@ -176,51 +172,25 @@ async function createTenantFlow(
           amount: subtotal,
           type: PaymentType.RENT,
           status: PaymentStatus.SUCCESS,
-          transactionId: `TXN-${Math.random()}`,
-        },
-      });
-    }
-
-    if (i === 1) {
-      await prisma.payment.create({
-        data: {
-          tenantId: tenant.id,
-          invoiceId: invoice.id,
-          amount: rent,
-          type: PaymentType.RENT,
-          status: PaymentStatus.SUCCESS,
         },
       });
     }
   }
 
-  // maintenance requests
   await prisma.maintenanceRequest.create({
     data: {
       tenantId: tenant.id,
-      roomId,
+      roomId: room.id,
       title: 'Water leakage',
       description: 'Bathroom pipe leaking',
       priority: MaintenancePriority.HIGH,
       status: MaintenanceStatus.OPEN,
     },
   });
-
-  await prisma.maintenanceRequest.create({
-    data: {
-      tenantId: tenant.id,
-      roomId,
-      title: 'AC repair',
-      description: 'AC not cooling',
-      priority: MaintenancePriority.MEDIUM,
-      status: MaintenanceStatus.RESOLVED,
-    },
-  });
-
-  return tenant;
 }
 
 async function createBuildingSystem(
+  org: any,
   name: string,
   owner: string,
   manager: string,
@@ -231,6 +201,7 @@ async function createBuildingSystem(
       name,
       address: `${name}, Earth`,
       ownerName: owner,
+      organizationId: org.id,
       waterSource: WaterSource.BOTH,
       hasLift: true,
       securityAvailable: true,
@@ -239,8 +210,13 @@ async function createBuildingSystem(
     },
   });
 
-  await createUser(generateEmail(owner, name), owner, UserRole.OWNER);
-  await createUser(generateEmail(manager, name), manager, UserRole.MANAGER);
+  await createUser(generateEmail(owner, name), owner, UserRole.OWNER, org.id);
+  await createUser(
+    generateEmail(manager, name),
+    manager,
+    UserRole.MANAGER,
+    org.id,
+  );
 
   const floors = [];
 
@@ -265,11 +241,11 @@ async function createBuildingSystem(
           roomNumber: `${floor.code}${String(r).padStart(2, '0')}`,
           baseRent: 15000 + floor.code * 5000,
           floorId: floor.id,
+          buildingId: building.id,
         },
       });
 
       await createMeterWithHistory(room.id, `${name}-${room.roomNumber}`);
-
       rooms.push(room);
     }
   }
@@ -278,76 +254,35 @@ async function createBuildingSystem(
     await createTenantFlow(
       tenants[i],
       `90000000${i}`,
-      rooms[i].id,
-      name,
-      rooms[i].baseRent,
+      rooms[i],
+      building,
+      org.id,
     );
   }
 }
 
 async function main() {
-  // MARVEL SIDE
-  await createBuildingSystem('Stark Tower', 'Tony Stark', 'Pepper Potts', [
+  // 🔥 Create Organization
+  const org = await prisma.organization.create({
+    data: {
+      name: 'Marvel vs DC Org',
+    },
+  });
+
+  await createBuildingSystem(org, 'Stark Tower', 'Tony Stark', 'Pepper Potts', [
     'Steve Rogers',
     'Natasha Romanoff',
     'Bruce Banner',
     'Thor Odinson',
-    'Peter Parker',
-    'Wanda Maximoff',
   ]);
 
-  await createBuildingSystem('Avengers Compound', 'Tony Stark', 'Nick Fury', [
-    'Clint Barton',
-    'Sam Wilson',
-    'Bucky Barnes',
-    'Vision',
-    'Scott Lang',
-    'Carol Danvers',
+  await createBuildingSystem(org, 'Wayne Manor', 'Bruce Wayne', 'Alfred', [
+    'Clark Kent',
+    'Diana Prince',
+    'Barry Allen',
   ]);
 
-  await createBuildingSystem(
-    'Xavier Institute',
-    'Charles Xavier',
-    'Hank McCoy',
-    ['Jean Grey', 'Scott Summers', 'Logan', 'Storm', 'Rogue', 'Nightcrawler'],
-  );
-
-  // DC SIDE
-  await createBuildingSystem(
-    'Wayne Manor',
-    'Bruce Wayne',
-    'Alfred Pennyworth',
-    [
-      'Clark Kent',
-      'Diana Prince',
-      'Barry Allen',
-      'Arthur Curry',
-      'Hal Jordan',
-      'Victor Stone',
-    ],
-  );
-
-  await createBuildingSystem(
-    'Wayne Enterprises Tower',
-    'Bruce Wayne',
-    'Lucius Fox',
-    [
-      'Selina Kyle',
-      'Jason Todd',
-      'Dick Grayson',
-      'Tim Drake',
-      'Barbara Gordon',
-    ],
-  );
-
-  await createBuildingSystem('Daily Planet', 'Bruce Wayne', 'Lois Lane', [
-    'Jimmy Olsen',
-    'Kara Danvers',
-    'Oliver Queen',
-    'John Constantine',
-  ]);
-
-  console.log('🔥 FULL CINEMATIC UNIVERSE SEEDED SUCCESSFULLY');
+  console.log('🔥 SEED COMPLETE');
 }
 
 main()

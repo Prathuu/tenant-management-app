@@ -93,6 +93,7 @@ model Organization {
   updatedAt DateTime @updatedAt
 
   users     User[]
+  tenants Tenant[]
   buildings Building[]
 
   @@index([name])
@@ -114,7 +115,7 @@ model User {
   organization   Organization @relation(fields: [organizationId], references: [id])
 
   tenantId Int? @unique
-  tenant   Tenant?
+  tenant   Tenant? @relation(fields: [tenantId], references: [id])
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -212,7 +213,8 @@ model Tenant {
   email    String?
 
   organizationId Int
-  organization   Organization @relation(fields: [organizationId], references: [id])
+  organization Organization @relation(fields: [organizationId], references: [id])
+  user User?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -262,7 +264,7 @@ model TenantRoom {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  lease Lease?
+  leases Lease[]
 
   @@index([tenantId])
   @@index([roomId, endDate])
