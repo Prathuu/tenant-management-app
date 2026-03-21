@@ -19,14 +19,14 @@ export class PaymentController {
 
   @Post()
   @Roles('TENANT')
-  createPayment(@Body() dto: CreatePaymentDto) {
-    return this.paymentService.createPayment(dto);
+  createPayment(@Body() dto: CreatePaymentDto, @CurrentUser() user: JwtUser) {
+    return this.paymentService.createPayment(dto, user);
   }
 
   @Get()
   @Roles('OWNER', 'MANAGER')
-  getAllPayments() {
-    return this.paymentService.getAllPayments();
+  getAllPayments(@CurrentUser() user: JwtUser) {
+    return this.paymentService.getAllPayments(user);
   }
 
   @Access('payment', 'id')

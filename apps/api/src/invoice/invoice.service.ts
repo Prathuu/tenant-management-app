@@ -4,12 +4,13 @@ import { CreateInvoiceDto } from './dto/create-invoice.dto';
 import { InvoiceStatus, PaymentType } from '@prisma/client';
 import { AppException } from '@/common/exceptions/base.exception';
 import { ExceptionCode } from '@/common/exceptions/exception-codes';
+import { JwtUser } from '@/auth/types/jwt-user.type';
 
 @Injectable()
 export class InvoiceService {
   constructor(private prisma: PrismaService) {}
 
-  async createInvoice(dto: CreateInvoiceDto) {
+  async createInvoice(dto: CreateInvoiceDto, user: JwtUser) {
     const lease = await this.prisma.lease.findUnique({
       where: { id: dto.leaseId },
       include: {
@@ -30,21 +31,45 @@ export class InvoiceService {
       );
     }
 
+    // 🔐 ORG CHECK
+    if (lease.tenantRoom.tenant.organizationId !== user.organizationId) {
+      throw new AppException(
+        'Unauthorized',
+        ExceptionCode.FORBIDDEN,
+        HttpStatus.FORBIDDEN,
+      );
+    }
+
+    // 🚫 DUPLICATE CHECK
+    const existing = await this.prisma.invoice.findFirst({
+      where: {
+        leaseId: dto.leaseId,
+        billingMonth: dto.billingMonth,
+        billingYear: dto.billingYear,
+      },
+    });
+
+    if (existing) {
+      throw new AppException(
+        'Invoice already exists for this period',
+        ExceptionCode.VALIDATION_ERROR,
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+
     const rentAmount = lease.rentAmount;
 
     return this.prisma.invoice.create({
       data: {
-        tenantId: dto.tenantId,
+        tenantId: lease.tenantRoom.tenantId, // ✅ FIXED
         leaseId: dto.leaseId,
 
         billingMonth: dto.billingMonth,
         billingYear: dto.billingYear,
-
         dueDate: new Date(dto.dueDate),
 
         subtotal: rentAmount,
         totalAmount: rentAmount,
-
         status: InvoiceStatus.UNPAID,
 
         items: {
@@ -73,8 +98,13 @@ export class InvoiceService {
     });
   }
 
-  async getAllInvoices() {
+  async getAllInvoices(user: JwtUser) {
     return this.prisma.invoice.findMany({
+      where: {
+        tenant: {
+          organizationId: user.organizationId,
+        },
+      },
       include: {
         tenant: true,
         lease: {

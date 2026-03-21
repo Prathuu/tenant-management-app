@@ -5,15 +5,16 @@ import { CreateMeterReadingDto } from './dto/create-meter-reading.dto';
 import { PrismaService } from '@prisma/prisma.service';
 import { AppException } from '@/common/exceptions/base.exception';
 import { ExceptionCode } from '@/common/exceptions/exception-codes';
+import { JwtUser } from '@/auth/types/jwt-user.type';
 
 @Injectable()
 export class MeterService {
   constructor(private prisma: PrismaService) {}
 
-  async createMeter(roomId: number, dto: CreateMeterDto) {
+  async createMeter(roomId: number, dto: CreateMeterDto, user: JwtUser) {
     const room = await this.prisma.room.findUnique({
       where: { id: roomId },
-      include: { meter: true },
+      include: { meters: true },
     });
 
     if (!room) {
@@ -24,9 +25,12 @@ export class MeterService {
       );
     }
 
-    if (room.meter) {
+    // Optional: prevent duplicate type (if you want 1 electricity, 1 water)
+    const existing = room.meters.find((m) => m.type === dto.type);
+
+    if (existing) {
       throw new AppException(
-        'Room already has a meter',
+        `${dto.type} meter already exists for this room`,
         ExceptionCode.METER_ALREADY_EXISTS,
         HttpStatus.BAD_REQUEST,
       );
@@ -34,40 +38,40 @@ export class MeterService {
 
     return this.prisma.meter.create({
       data: {
-        roomId,
         meterNumber: dto.meterNumber,
-      },
-    });
-  }
-
-  async getMeterByRoom(roomId: number) {
-    return this.prisma.meter.findUnique({
-      where: { roomId },
-      include: {
-        readings: {
-          orderBy: {
-            readingDate: 'desc',
-          },
+        type: dto.type, // ✅ REQUIRED NOW
+        room: {
+          connect: { id: roomId },
         },
       },
     });
   }
 
-  async getMetersByBuilding(buildingId: number) {
+  async getMeterByRoom(roomId: number) {
+    return this.prisma.meter.findMany({
+      where: { roomId },
+      include: {
+        readings: {
+          orderBy: { readingDate: 'desc' },
+        },
+      },
+    });
+  }
+
+  async getMetersByBuilding(buildingId: number, user: JwtUser) {
     return this.prisma.meter.findMany({
       where: {
         room: {
-          floor: {
-            buildingId,
+          buildingId,
+          building: {
+            organizationId: user.organizationId,
           },
         },
       },
       include: {
         room: true,
         readings: {
-          orderBy: {
-            readingDate: 'desc',
-          },
+          orderBy: { readingDate: 'desc' },
         },
       },
     });

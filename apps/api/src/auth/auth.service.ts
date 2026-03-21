@@ -71,14 +71,12 @@ export class AuthService {
       throw new UnauthorizedException('Invalid credentials');
     }
 
-    const token = this.jwtService.sign(
-      {
-        sub: user.id,
-        email: user.email,
-        role: user.role,
-      },
-      { expiresIn: '1d' },
-    );
+    const token = this.jwtService.sign({
+      sub: user.id,
+      email: user.email,
+      role: user.role,
+      organizationId: user.organizationId,
+    });
 
     return {
       access_token: token,

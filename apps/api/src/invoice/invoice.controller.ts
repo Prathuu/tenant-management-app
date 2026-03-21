@@ -19,14 +19,14 @@ export class InvoiceController {
 
   @Post()
   @Roles('OWNER', 'MANAGER')
-  createInvoice(@Body() dto: CreateInvoiceDto) {
-    return this.invoiceService.createInvoice(dto);
+  createInvoice(@Body() dto: CreateInvoiceDto, @CurrentUser() user: JwtUser) {
+    return this.invoiceService.createInvoice(dto, user);
   }
 
   @Get()
   @Roles('OWNER', 'MANAGER')
-  getAllInvoices() {
-    return this.invoiceService.getAllInvoices();
+  getAllInvoices(@CurrentUser() user: JwtUser) {
+    return this.invoiceService.getAllInvoices(user);
   }
 
   @Access('invoice', 'id')

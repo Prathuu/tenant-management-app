@@ -5,22 +5,34 @@ import { AddPersonDto } from './dto/add-person.dto';
 import { AssignRoomDto } from './dto/assign-room.dto';
 import { AppException } from '@/common/exceptions/base.exception';
 import { ExceptionCode } from '@/common/exceptions/exception-codes';
+import { JwtUser } from '@/auth/types/jwt-user.type';
 
 @Injectable()
 export class TenantService {
   constructor(private prisma: PrismaService) {}
 
   // CREATE TENANT
-  async createTenant(dto: CreateTenantDto) {
+  async createTenant(dto: CreateTenantDto, user: JwtUser) {
     return this.prisma.tenant.create({
-      data: dto,
+      data: {
+        fullName: dto.fullName,
+        phone: dto.phone,
+        email: dto.email,
+
+        organization: {
+          connect: { id: user.organizationId },
+        },
+      },
     });
   }
 
   // GET ALL TENANTS
-  async getAllTenants() {
+  async getAllTenants(user: JwtUser) {
     return this.prisma.tenant.findMany({
-      where: { deletedAt: null },
+      where: {
+        deletedAt: null,
+        organizationId: user.organizationId,
+      },
       include: {
         persons: true,
         tenantRooms: {
@@ -64,16 +76,20 @@ export class TenantService {
 
     return this.prisma.person.create({
       data: {
-        ...dto,
-        tenantId,
+        fullName: dto.fullName,
+        age: dto.age,
+        relation: dto.relation,
+
+        tenant: {
+          connect: { id: tenantId },
+        },
       },
     });
   }
 
   // ASSIGN ROOM
   async assignRoom(tenantId: number, dto: AssignRoomDto) {
-    // verify tenant exists
-    await this.getTenantById(tenantId);
+    const tenant = await this.getTenantById(tenantId);
 
     const room = await this.prisma.room.findUnique({
       where: { id: dto.roomId },
@@ -100,13 +116,27 @@ export class TenantService {
       );
     }
 
-    return this.prisma.tenantRoom.create({
-      data: {
-        tenantId,
-        roomId: dto.roomId,
-        agreedRent: dto.agreedRent,
-        startDate: new Date(),
-      },
+    return this.prisma.$transaction(async (tx) => {
+      const tenantRoom = await tx.tenantRoom.create({
+        data: {
+          tenant: {
+            connect: { id: tenantId },
+          },
+          room: {
+            connect: { id: dto.roomId },
+          },
+          buildingId: room.buildingId,
+          agreedRent: dto.agreedRent,
+          startDate: new Date(),
+        },
+      });
+
+      await tx.room.update({
+        where: { id: dto.roomId },
+        data: { isOccupied: true },
+      });
+
+      return tenantRoom;
     });
   }
 
@@ -132,11 +162,20 @@ export class TenantService {
       );
     }
 
-    return this.prisma.tenantRoom.update({
-      where: { id: tenantRoomId },
-      data: {
-        endDate: new Date(),
-      },
+    return this.prisma.$transaction(async (tx) => {
+      const updated = await tx.tenantRoom.update({
+        where: { id: tenantRoomId },
+        data: {
+          endDate: new Date(),
+        },
+      });
+
+      await tx.room.update({
+        where: { id: updated.roomId },
+        data: { isOccupied: false },
+      });
+
+      return updated;
     });
   }
 
