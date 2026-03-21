@@ -2,6 +2,7 @@ import { ThemeProvider } from "@/providers/theme-provider";
 import { CursorLight } from "@/components/glass/cursor-light";
 import { ReactQueryProvider } from "@/providers/react-query-provider";
 import "./globals.css";
+import { Toaster } from "@/components/ui/sonner";
 
 export const metadata = {
   manifest: "/manifest.json",
@@ -48,6 +49,15 @@ export default function RootLayout({
       <body>
         <ReactQueryProvider>
           <ThemeProvider>
+            <Toaster
+              position="top-right"
+              richColors
+              expand
+              toastOptions={{
+                className:
+                  "bg-white/10 backdrop-blur-xl border border-white/20 text-white shadow-xl",
+              }}
+            />
             <CursorLight />
             {children}
           </ThemeProvider>
