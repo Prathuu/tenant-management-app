@@ -251,6 +251,7 @@ async function createBuildingSystem(
   }
 
   for (let i = 0; i < tenants.length; i++) {
+    if (Math.random() > 0.8) continue; // some rooms vacant
     await createTenantFlow(
       tenants[i],
       `90000000${i}`,
@@ -262,27 +263,98 @@ async function createBuildingSystem(
 }
 
 async function main() {
-  // 🔥 Create Organization
   const org = await prisma.organization.create({
     data: {
-      name: 'Marvel vs DC Org',
+      name: 'Multiverse Housing Org',
     },
   });
 
+  // 🦸 MARVEL
   await createBuildingSystem(org, 'Stark Tower', 'Tony Stark', 'Pepper Potts', [
     'Steve Rogers',
     'Natasha Romanoff',
     'Bruce Banner',
     'Thor Odinson',
+    'Clint Barton',
+    'Wanda Maximoff',
+    'Vision',
+    'Peter Parker',
   ]);
 
+  await createBuildingSystem(
+    org,
+    'Xavier Institute',
+    'Charles Xavier',
+    'Logan',
+    ['Jean Grey', 'Cyclops', 'Storm', 'Beast', 'Rogue', 'Gambit'],
+  );
+
+  // 🦇 DC
   await createBuildingSystem(org, 'Wayne Manor', 'Bruce Wayne', 'Alfred', [
     'Clark Kent',
     'Diana Prince',
     'Barry Allen',
+    'Hal Jordan',
+    'Arthur Curry',
   ]);
 
-  console.log('🔥 SEED COMPLETE');
+  await createBuildingSystem(org, 'Daily Planet', 'Perry White', 'Lois Lane', [
+    'Jimmy Olsen',
+    'Lex Luthor',
+    'Supergirl',
+    'Zatanna',
+  ]);
+
+  // 🏴‍☠️ ONE PIECE
+  await createBuildingSystem(
+    org,
+    'Going Merry Residency',
+    'Monkey D. Luffy',
+    'Nami',
+    [
+      'Roronoa Zoro',
+      'Usopp',
+      'Sanji',
+      'Tony Tony Chopper',
+      'Nico Robin',
+      'Franky',
+      'Brook',
+      'Jinbe',
+    ],
+  );
+
+  // 🍥 NARUTO
+  await createBuildingSystem(
+    org,
+    'Hidden Leaf Apartments',
+    'Naruto Uzumaki',
+    'Shikamaru',
+    [
+      'Sasuke Uchiha',
+      'Sakura Haruno',
+      'Kakashi Hatake',
+      'Hinata Hyuga',
+      'Rock Lee',
+      'Neji Hyuga',
+    ],
+  );
+
+  // ⚡ JJK
+  await createBuildingSystem(
+    org,
+    'Tokyo Jujutsu Dorms',
+    'Satoru Gojo',
+    'Nanami',
+    [
+      'Yuji Itadori',
+      'Megumi Fushiguro',
+      'Nobara Kugisaki',
+      'Yuta Okkotsu',
+      'Maki Zenin',
+    ],
+  );
+
+  console.log('🔥 MULTIVERSE SEED COMPLETE');
 }
 
 main()
