@@ -29,12 +29,23 @@ export class AuthService {
 
     const hashedPassword = await bcrypt.hash(dto.password, 10);
 
+    const org = await this.prisma.organization.findUnique({
+      where: { id: dto.organizationId },
+    });
+
+    if (!org) {
+      throw new BadRequestException('Invalid organization');
+    }
+
     const user = await this.prisma.user.create({
       data: {
         email: dto.email,
         password: hashedPassword,
         name: dto.name,
         role: dto.role,
+        organization: {
+          connect: { id: dto.organizationId },
+        },
       },
     });
 
