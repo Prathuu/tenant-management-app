@@ -3,9 +3,6 @@ import { PaymentType, PaymentStatus } from '@prisma/client';
 
 export class CreatePaymentDto {
   @IsInt()
-  tenantId: number;
-
-  @IsInt()
   invoiceId: number;
 
   @IsNumber()
