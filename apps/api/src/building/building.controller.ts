@@ -22,15 +22,15 @@ export class BuildingController {
   // Create building
   @Post()
   @Roles('OWNER')
-  createBuilding(@Body() dto: CreateBuildingDto) {
-    return this.buildingService.createBuilding(dto);
+  createBuilding(@Body() dto: CreateBuildingDto, @CurrentUser() user: JwtUser) {
+    return this.buildingService.createBuilding(dto, user);
   }
 
   // Get all buildings
   @Get()
   @Roles('OWNER', 'MANAGER')
-  getAllBuildings() {
-    return this.buildingService.getAllBuildings();
+  getAllBuildings(@CurrentUser() user: JwtUser) {
+    return this.buildingService.getAllBuildings(user);
   }
 
   @Access('building', 'id')

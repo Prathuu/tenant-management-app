@@ -5,22 +5,41 @@ import { CreateRoomDto } from './dto/create-room.dto';
 import { PrismaService } from '@prisma/prisma.service';
 import { AppException } from '@/common/exceptions/base.exception';
 import { ExceptionCode } from '@/common/exceptions/exception-codes';
+import { JwtUser } from '@/auth/types/jwt-user.type';
 
 @Injectable()
 export class BuildingService {
   constructor(private prisma: PrismaService) {}
 
   // Create building
-  async createBuilding(dto: CreateBuildingDto) {
+  async createBuilding(dto: CreateBuildingDto, user: JwtUser) {
     return this.prisma.building.create({
-      data: dto,
+      data: {
+        name: dto.name,
+        address: dto.address,
+        ownerName: dto.ownerName,
+        ownerPhone: dto.ownerPhone,
+        ownerEmail: dto.ownerEmail,
+        hasLift: dto.hasLift,
+        parkingSlots: dto.parkingSlots,
+        powerBackup: dto.powerBackup,
+        waterSource: dto.waterSource,
+        securityAvailable: dto.securityAvailable,
+
+        organization: {
+          connect: { id: user.organizationId },
+        },
+      },
     });
   }
 
   // Get all buildings
-  async getAllBuildings() {
+  async getAllBuildings(user: JwtUser) {
     const buildings = await this.prisma.building.findMany({
-      where: { deletedAt: null },
+      where: {
+        organizationId: user.organizationId,
+        deletedAt: null,
+      },
       select: {
         id: true,
         name: true,
@@ -30,7 +49,9 @@ export class BuildingService {
             rooms: {
               select: {
                 id: true,
-                tenant: {
+                isOccupied: true,
+                tenantRooms: {
+                  where: { endDate: null },
                   select: { id: true },
                 },
               },
@@ -49,10 +70,9 @@ export class BuildingService {
         floor.rooms.forEach((room) => {
           totalRooms++;
 
-          if (room.tenant) {
-            occupiedRooms++;
-            totalTenants++;
-          }
+          if (room.isOccupied) occupiedRooms++;
+
+          totalTenants += room.tenantRooms.length;
         });
       });
 
@@ -86,8 +106,11 @@ export class BuildingService {
 
     return this.prisma.floor.create({
       data: {
-        ...dto,
-        buildingId,
+        name: dto.name,
+        code: dto.code,
+        building: {
+          connect: { id: buildingId },
+        },
       },
     });
   }
@@ -118,8 +141,14 @@ export class BuildingService {
 
     return this.prisma.room.create({
       data: {
-        ...dto,
-        floorId,
+        roomNumber: dto.roomNumber,
+        baseRent: dto.baseRent,
+        floor: {
+          connect: { id: floorId },
+        },
+        building: {
+          connect: { id: floor.buildingId },
+        },
       },
     });
   }
@@ -129,8 +158,10 @@ export class BuildingService {
     return this.prisma.room.findMany({
       where: { floorId },
       include: {
-        meter: true,
-        tenantRooms: true,
+        meters: true,
+        tenantRooms: {
+          where: { endDate: null },
+        },
       },
     });
   }
