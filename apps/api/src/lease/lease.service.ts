@@ -3,20 +3,31 @@ import { PrismaService } from '@prisma/prisma.service';
 import { CreateLeaseDto } from './dto/create-lease.dto';
 import { AppException } from '@/common/exceptions/base.exception';
 import { ExceptionCode } from '@/common/exceptions/exception-codes';
+import { JwtUser } from '@/auth/types/jwt-user.type';
 
 @Injectable()
 export class LeaseService {
   constructor(private prisma: PrismaService) {}
 
-  async createLease(dto: CreateLeaseDto) {
+  async createLease(dto: CreateLeaseDto, user: JwtUser) {
     const tenantRoom = await this.prisma.tenantRoom.findUnique({
       where: { id: dto.tenantRoomId },
       include: {
         tenant: true,
         room: true,
-        lease: true,
+        leases: {
+          where: { status: 'ACTIVE' },
+        },
       },
     });
+
+    if (tenantRoom.tenant.organizationId !== user.organizationId) {
+      throw new AppException(
+        'Unauthorized access',
+        ExceptionCode.FORBIDDEN,
+        HttpStatus.FORBIDDEN,
+      );
+    }
 
     if (!tenantRoom) {
       throw new AppException(
@@ -26,9 +37,9 @@ export class LeaseService {
       );
     }
 
-    if (tenantRoom.lease) {
+    if (tenantRoom.leases.length > 0) {
       throw new AppException(
-        'Lease already exists for this TenantRoom',
+        'Active lease already exists for this TenantRoom',
         ExceptionCode.LEASE_ALREADY_EXISTS,
         HttpStatus.BAD_REQUEST,
       );
@@ -36,7 +47,9 @@ export class LeaseService {
 
     return this.prisma.lease.create({
       data: {
-        tenantRoomId: dto.tenantRoomId,
+        tenantRoom: {
+          connect: { id: dto.tenantRoomId },
+        },
         rentAmount: dto.rentAmount,
         depositAmount: dto.depositAmount,
         startDate: new Date(dto.startDate),
@@ -61,8 +74,15 @@ export class LeaseService {
     });
   }
 
-  async getAllLeases() {
+  async getAllLeases(user: JwtUser) {
     return this.prisma.lease.findMany({
+      where: {
+        tenantRoom: {
+          tenant: {
+            organizationId: user.organizationId,
+          },
+        },
+      },
       include: {
         tenantRoom: {
           include: {
@@ -96,10 +116,15 @@ export class LeaseService {
     });
   }
 
-  async getTenantLeases(tenantId: number) {
+  async getTenantLeases(tenantId: number, user: JwtUser) {
     return this.prisma.lease.findMany({
       where: {
-        tenantRoom: { tenantId },
+        tenantRoom: {
+          tenantId,
+          tenant: {
+            organizationId: user.organizationId,
+          },
+        },
       },
       include: {
         tenantRoom: {

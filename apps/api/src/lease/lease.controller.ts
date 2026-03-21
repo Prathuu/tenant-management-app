@@ -20,14 +20,14 @@ export class LeaseController {
 
   @Post('leases')
   @Roles('OWNER', 'MANAGER')
-  createLease(@Body() dto: CreateLeaseDto) {
-    return this.leaseService.createLease(dto);
+  createLease(@Body() dto: CreateLeaseDto, @CurrentUser() user: JwtUser) {
+    return this.leaseService.createLease(dto, user);
   }
 
   @Get('leases')
   @Roles('OWNER', 'MANAGER')
-  getAllLeases() {
-    return this.leaseService.getAllLeases();
+  getAllLeases(@CurrentUser() user: JwtUser) {
+    return this.leaseService.getAllLeases(user);
   }
 
   @Access('lease', 'id')
@@ -47,7 +47,7 @@ export class LeaseController {
     @Param('tenantId', ParseIntPipe) tenantId: number,
     @CurrentUser() user: JwtUser,
   ) {
-    return this.leaseService.getTenantLeases(tenantId);
+    return this.leaseService.getTenantLeases(tenantId, user);
   }
 
   @Get('rooms/:roomId/leases')
