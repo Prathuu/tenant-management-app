@@ -23,8 +23,9 @@ export class MeterController {
   createMeter(
     @Param('roomId', ParseIntPipe) roomId: number,
     @Body() dto: CreateMeterDto,
+    @CurrentUser() user: JwtUser,
   ) {
-    return this.meterService.createMeter(roomId, dto);
+    return this.meterService.createMeter(roomId, dto, user);
   }
 
   @Access('meter', 'roomId')
@@ -58,7 +59,10 @@ export class MeterController {
 
   @Get('buildings/:buildingId/meters')
   @Roles('OWNER', 'MANAGER')
-  getMetersByBuilding(@Param('buildingId', ParseIntPipe) buildingId: number) {
-    return this.meterService.getMetersByBuilding(buildingId);
+  getMetersByBuilding(
+    @Param('buildingId', ParseIntPipe) buildingId: number,
+    @CurrentUser() user: JwtUser,
+  ) {
+    return this.meterService.getMetersByBuilding(buildingId, user);
   }
 }
