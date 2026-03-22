@@ -9,3 +9,9 @@ export const login = async (payload: LoginPayload) => {
 export const logout = async () => {
   await api.post("/auth/logout");
 };
+
+export const registerUser = (data: {
+  name: string;
+  email: string;
+  password: string;
+}) => api.post("/auth/register", data);
