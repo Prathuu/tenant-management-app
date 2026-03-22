@@ -1,7 +1,7 @@
 import { api } from "@/lib/api";
 import { LoginPayload } from "./auth.types";
 
-export const login = async (payload: LoginPayload) => {
+export const loginUser = async (payload: LoginPayload) => {
   const { data } = await api.post("/auth/login", payload);
   return data;
 };
