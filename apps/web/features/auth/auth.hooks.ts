@@ -1,28 +1,39 @@
-"use client";
+import { useState } from "react";
+import { loginUser, registerUser } from "../auth/auth.api";
+import { toast } from "sonner";
 
-import { useMutation } from "@tanstack/react-query";
-import { login, logout } from "./auth.api";
-import { useRouter } from "next/navigation";
+export const useAuth = () => {
+  const [loading, setLoading] = useState(false);
 
-export const useLogin = () => {
-  const router = useRouter();
-
-  return useMutation({
-    mutationFn: login,
-
-    onSuccess: () => {
-      router.push("/dashboard/buildings");
-    },
-  });
-};
-
-export const useLogout = () => {
-  const router = useRouter();
-
-  const handleLogout = async () => {
-    await logout();
-    router.push("/login");
+  const login = async (data: { email: string; password: string }) => {
+    try {
+      setLoading(true);
+      await loginUser(data);
+      toast.success("Logged in");
+      window.location.href = "/dashboard";
+    } catch (err: any) {
+      toast.error(err?.response?.data?.message || "Login failed");
+    } finally {
+      setLoading(false);
+    }
   };
 
-  return handleLogout;
+  const register = async (data: {
+    name: string;
+    email: string;
+    password: string;
+  }) => {
+    try {
+      setLoading(true);
+      await registerUser(data);
+      toast.success("Account created");
+      window.location.href = "/dashboard";
+    } catch (err: any) {
+      toast.error(err?.response?.data?.message || "Register failed");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return { login, register, loading };
 };
