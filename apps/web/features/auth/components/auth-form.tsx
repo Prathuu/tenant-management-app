@@ -1,6 +1,12 @@
 "use client";
 
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import {
+  GlassTabs,
+  GlassTabsList,
+  GlassTabsTrigger,
+  GlassTabsContent,
+} from "@/components/glass/glass-tabs";
+
 import { LoginForm } from "./login-form";
 import { RegisterForm } from "./register-form";
 import { GlassCard } from "@/components/glass/glass-card";
@@ -8,23 +14,31 @@ import { GlassCard } from "@/components/glass/glass-card";
 export const AuthForm = () => {
   return (
     <div className="flex items-center justify-center p-6">
-      <GlassCard className="w-full max-w-md p-6 space-y-4">
-        <h2 className="text-2xl font-semibold text-center">Welcome</h2>
+      <GlassCard className="w-full max-w-md space-y-6">
+        {/* Header */}
+        <div className="text-center space-y-1">
+          <h2 className="text-2xl font-semibold tracking-tight">Welcome</h2>
+          <p className="text-sm text-muted-foreground">
+            Manage your properties effortlessly
+          </p>
+        </div>
 
-        <Tabs defaultValue="login" className="w-full">
-          <TabsList className="grid grid-cols-2">
-            <TabsTrigger value="login">Login</TabsTrigger>
-            <TabsTrigger value="register">Register</TabsTrigger>
-          </TabsList>
+        {/* Glass Tabs */}
+        <GlassTabs defaultValue="login" className="space-y-5">
+          <GlassTabsList>
+            <GlassTabsTrigger value="login">Login</GlassTabsTrigger>
 
-          <TabsContent value="login">
+            <GlassTabsTrigger value="register">Register</GlassTabsTrigger>
+          </GlassTabsList>
+
+          <GlassTabsContent value="login">
             <LoginForm />
-          </TabsContent>
+          </GlassTabsContent>
 
-          <TabsContent value="register">
+          <GlassTabsContent value="register">
             <RegisterForm />
-          </TabsContent>
-        </Tabs>
+          </GlassTabsContent>
+        </GlassTabs>
       </GlassCard>
     </div>
   );

@@ -25,13 +25,13 @@ export function GlassTabsList({
         backdrop-blur-xl
         bg-[var(--glass-bg)]
 
-        border
-        border-[var(--glass-border)]
+        border border-[var(--glass-border)]
+        rounded-xl p-1
 
-        rounded-xl
-        p-1
+        flex flex-row w-full
+        items-center
 
-        flex w-full
+        gap-1
         `,
         className,
       )}
@@ -55,26 +55,19 @@ export function GlassTabsTrigger({
         px-4 py-2
         text-sm font-medium
         rounded-lg
-
+            
         transition-all duration-200
-
+            
         text-muted-foreground
         hover:text-foreground
-
+            
         active:scale-[0.98]
         `,
-
-        // ✅ ACTIVE STATE → filled glass button
         `
-        data-[state=active]:glass-card
-        data-[state=active]:glass-reflect
-
-        data-[state=active]:bg-[var(--glass-bg)]
-        data-[state=active]:border
-        data-[state=active]:border-[var(--glass-border)]
-
-        data-[state=active]:text-foreground
-        data-[state=active]:shadow-[0_8px_30px_rgba(0,0,0,0.25)]
+        data-[state=active]:bg-[var(--accent)]
+        data-[state=active]:text-[var(--accent-foreground)]
+            
+        data-[state=active]:shadow-[0_6px_20px_rgba(0,0,0,0.3)]
         `,
 
         className,
