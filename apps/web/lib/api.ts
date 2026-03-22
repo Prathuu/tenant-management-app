@@ -20,14 +20,12 @@ api.interceptors.response.use(
     });
 
     // DO NOT redirect on login/register errors
-    const isAuthPage =
-      window.location.pathname.includes("/login") ||
-      window.location.pathname.includes("/register");
+    const isAuthPage = window.location.pathname.includes("/auth");
 
     if (error.response?.status === 401 && !isAuthPage) {
       console.warn("Unauthorized - redirecting");
 
-      window.location.href = "/login";
+      window.location.href = "/auth";
     }
 
     return Promise.reject(error);
