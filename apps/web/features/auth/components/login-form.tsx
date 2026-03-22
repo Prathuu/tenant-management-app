@@ -4,9 +4,8 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { loginSchema, LoginInput } from "../schema";
 import { useAuth } from "../auth.hooks";
-
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
+import { GlassButton } from "@/components/glass/glass-button";
+import { GlassInput } from "@/components/glass/glass-input";
 
 export const LoginForm = () => {
   const { login, loading } = useAuth();
@@ -21,16 +20,16 @@ export const LoginForm = () => {
 
   return (
     <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-      <Input placeholder="Email" {...form.register("email")} />
-      <Input
+      <GlassInput placeholder="Email" {...form.register("email")} />
+      <GlassInput
         type="password"
         placeholder="Password"
         {...form.register("password")}
       />
 
-      <Button type="submit" className="w-full" disabled={loading}>
+      <GlassButton type="submit" className="mx-auto" disabled={loading}>
         {loading ? "Signing in..." : "Login"}
-      </Button>
+      </GlassButton>
     </form>
   );
 };
