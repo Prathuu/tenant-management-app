@@ -3,7 +3,7 @@
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { LoginForm } from "./login-form";
 import { RegisterForm } from "./register-form";
-import { GlassCard } from "@/components/glass-card";
+import { GlassCard } from "@/components/glass/glass-card";
 
 export const AuthForm = () => {
   return (
