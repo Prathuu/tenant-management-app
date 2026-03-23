@@ -32,8 +32,8 @@ export const AuthForm = () => {
             className={cn(
               "flex-1 h-10 rounded-lg text-sm font-medium transition-all",
               mode === "login"
-                ? "bg-[var(--accent)] text-[var(--accent-foreground)] shadow"
-                : "text-muted-foreground hover:text-foreground",
+                ? ""
+                : "bg-[var(--accent)] text-[var(--accent-foreground)] shadow",
             )}
           >
             Login
@@ -44,8 +44,8 @@ export const AuthForm = () => {
             className={cn(
               "flex-1 h-10 rounded-lg text-sm font-medium transition-all",
               mode === "register"
-                ? "bg-[var(--accent)] text-[var(--accent-foreground)] shadow"
-                : "text-muted-foreground hover:text-foreground",
+                ? ""
+                : "bg-[var(--accent)] text-[var(--accent-foreground)] shadow",
             )}
           >
             Register
