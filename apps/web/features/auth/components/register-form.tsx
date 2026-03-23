@@ -7,6 +7,7 @@ import { useAuth } from "../auth.hooks";
 
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { GlassButton } from "@/components/glass/glass-button";
 
 export const RegisterForm = () => {
   const { register: registerUserFn, loading } = useAuth();
@@ -38,9 +39,9 @@ export const RegisterForm = () => {
         {...form.register("confirmPassword")}
       />
 
-      <Button type="submit" className="w-full" disabled={loading}>
+      <GlassButton type="submit" className="w-full" disabled={loading}>
         {loading ? "Creating account..." : "Register"}
-      </Button>
+      </GlassButton>
     </form>
   );
 };

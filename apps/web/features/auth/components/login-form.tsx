@@ -27,7 +27,7 @@ export const LoginForm = () => {
         {...form.register("password")}
       />
 
-      <GlassButton type="submit" className="mx-auto" disabled={loading}>
+      <GlassButton type="submit" className="mx-auto w-full" disabled={loading}>
         {loading ? "Signing in..." : "Login"}
       </GlassButton>
     </form>
