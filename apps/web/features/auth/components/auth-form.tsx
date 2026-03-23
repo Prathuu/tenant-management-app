@@ -5,6 +5,7 @@ import { GlassCard } from "@/components/glass/glass-card";
 import { LoginForm } from "./login-form";
 import { RegisterForm } from "./register-form";
 import { cn } from "@/lib/utils";
+import { GlassButton } from "@/components/glass/glass-button";
 
 export const AuthForm = () => {
   const [mode, setMode] = useState<"login" | "register">("login");
@@ -26,7 +27,7 @@ export const AuthForm = () => {
 
         {/* Toggle (clean AF, no bugs) */}
         <div className="flex w-full rounded-xl p-1 bg-[var(--glass-bg)] border border-[var(--glass-border)]">
-          <button
+          <GlassButton
             onClick={() => setMode("login")}
             className={cn(
               "flex-1 h-10 rounded-lg text-sm font-medium transition-all",
@@ -36,9 +37,9 @@ export const AuthForm = () => {
             )}
           >
             Login
-          </button>
+          </GlassButton>
 
-          <button
+          <GlassButton
             onClick={() => setMode("register")}
             className={cn(
               "flex-1 h-10 rounded-lg text-sm font-medium transition-all",
@@ -48,7 +49,7 @@ export const AuthForm = () => {
             )}
           >
             Register
-          </button>
+          </GlassButton>
         </div>
 
         {/* Forms */}
