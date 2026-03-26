@@ -7,14 +7,15 @@ import { cn } from "@/lib/utils";
 export function GlassCard({
   children,
   className,
+  enableHover,
   ...props
-}: React.ComponentProps<typeof Card>) {
+}: React.ComponentProps<typeof Card> & { enableHover?: boolean }) {
   const { ref, handleMove, reset } = useGlassHover();
 
   return (
     <Card
       ref={ref}
-      onMouseMove={handleMove}
+      onMouseMove={enableHover ? handleMove : undefined}
       onMouseLeave={reset}
       className={cn(
         `

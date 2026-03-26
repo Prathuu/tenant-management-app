@@ -219,3 +219,14 @@ body::before {
 .glass-reflect:hover::after {
   opacity: 0.45;
 }
+
+/* glass input */
+
+@keyframes shine {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(100%);
+  }
+}
