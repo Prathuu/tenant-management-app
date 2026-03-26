@@ -8,6 +8,8 @@ import { useAuth } from "../auth.hooks";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { GlassButton } from "@/components/glass/glass-button";
+import { GlassInput } from "@/components/glass/glass-input";
+import { Mail, UserRound } from "lucide-react";
 
 export const RegisterForm = () => {
   const { register: registerUserFn, loading } = useAuth();
@@ -26,14 +28,22 @@ export const RegisterForm = () => {
 
   return (
     <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-      <Input placeholder="Name" {...form.register("name")} />
-      <Input placeholder="Email" {...form.register("email")} />
-      <Input
+      <GlassInput
+        placeholder="Name"
+        {...form.register("name")}
+        endIcon={<UserRound size={18} />}
+      />
+      <GlassInput
+        placeholder="Email"
+        {...form.register("email")}
+        endIcon={<Mail size={18} />}
+      />
+      <GlassInput
         type="password"
         placeholder="Password"
         {...form.register("password")}
       />
-      <Input
+      <GlassInput
         type="password"
         placeholder="Confirm Password"
         {...form.register("confirmPassword")}
