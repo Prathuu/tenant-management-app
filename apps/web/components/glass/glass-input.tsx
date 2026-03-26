@@ -8,28 +8,29 @@ export function GlassInput({ className, ...props }: GlassInputProps) {
     <Input
       className={cn(
         `
-        glass
         w-full
-        rounded-full
-        px-4  
         h-10
-        transition-all duration-200
+        px-4
+        rounded-full
 
-        bg-white/10
-        dark:bg-white/5
+        bg-white/10 dark:bg-white/5
+        backdrop-blur-md
 
-        border-white/20
+        border border-white/20
         text-foreground
-        placeholder:text-muted-foreground
 
-        shadow-[inset_0_1px_1px_rgba(255,255,255,0.15),inset_0_-1px_2px_rgba(0,0,0,0.2)]
+        placeholder:text-white/60
+        placeholder:font-medium
 
-        hover:border-[rgb(var(--primary)/0.5)]
+        transition-all duration-200 ease-out
 
+        hover:border-white/30
+
+        focus-visible:outline-none
         focus-visible:border-[rgb(var(--primary))]
-        focus-visible:ring-2
-        focus-visible:ring-[rgb(var(--ring))]
-        focus-visible:ring-offset-0
+        focus-visible:ring-1
+        focus-visible:ring-[rgb(var(--primary)/0.4)]
+        focus-visible:bg-white/15 dark:focus-visible:bg-white/10
         `,
         className,
       )}
