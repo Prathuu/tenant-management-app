@@ -12,7 +12,7 @@ export const AuthForm = () => {
 
   return (
     <div className="flex items-center justify-center p-6">
-      <GlassCard className="w-full max-w-md space-y-6">
+      <GlassCard className="w-full max-w-md space-y-6" enableHover={false}>
         {/* Header */}
         <div className="text-center space-y-1">
           <h2 className="text-2xl font-semibold tracking-tight">

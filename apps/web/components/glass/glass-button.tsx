@@ -62,7 +62,7 @@ export function GlassButton({
   return (
     <Button
       className={cn(
-        "cursor-pointer pb-0.75 px-4 rounded-2xl flex items-center gap-2",
+        "cursor-pointer pb-0.75 h-10 px-4 rounded-full flex items-center gap-2",
         styles[appearance],
         className,
       )}

@@ -10,8 +10,9 @@ export function GlassInput({ className, ...props }: GlassInputProps) {
         `
         glass
         w-full
-        rounded-2xl
-        px-4
+        rounded-full
+        px-4  
+        h-10
         transition-all duration-200
 
         bg-white/10
