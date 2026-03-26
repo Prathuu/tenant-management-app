@@ -6,6 +6,7 @@ import { loginSchema, LoginInput } from "../schema";
 import { useAuth } from "../auth.hooks";
 import { GlassButton } from "@/components/glass/glass-button";
 import { GlassInput } from "@/components/glass/glass-input";
+import { UserRound } from "lucide-react";
 
 export const LoginForm = () => {
   const { login, loading } = useAuth();
@@ -20,7 +21,11 @@ export const LoginForm = () => {
 
   return (
     <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-      <GlassInput placeholder="Email" {...form.register("email")} />
+      <GlassInput
+        placeholder="Email"
+        {...form.register("email")}
+        endIcon={<UserRound size={18} />}
+      />
       <GlassInput
         type="password"
         placeholder="Password"
