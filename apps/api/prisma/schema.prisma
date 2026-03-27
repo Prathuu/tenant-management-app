@@ -29,6 +29,12 @@ enum PersonRelation {
   OTHER
 }
 
+enum OccupancyType {
+  SINGLE
+  SHARED
+  FAMILY
+}
+
 enum InvoiceStatus {
   UNPAID
   PARTIAL
@@ -187,6 +193,7 @@ model Room {
   building Building @relation(fields: [buildingId], references: [id])
 
   isOccupied Boolean @default(false)
+  occupancyType OccupancyType
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
