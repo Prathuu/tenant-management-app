@@ -73,7 +73,7 @@ export function GlassInput({
           <button
             type="button"
             onClick={() => setShowPassword((prev) => !prev)}
-            className="text-white/60 hover:text-[rgb(var(--primary))] transition-colors me-1.5"
+            className="text-white/60 hover:text-[rgb(var(--primary))] transition-colors me-1.5 cursor-pointer"
           >
             {showPassword ? <Eye size={18} /> : <EyeOff size={18} />}
           </button>
