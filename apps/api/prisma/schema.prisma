@@ -193,7 +193,6 @@ model Room {
   building Building @relation(fields: [buildingId], references: [id])
 
   isOccupied Boolean @default(false)
-  occupancyType OccupancyType
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -262,6 +261,7 @@ model TenantRoom {
 
   tenant Tenant @relation(fields: [tenantId], references: [id])
   room   Room   @relation(fields: [roomId], references: [id])
+  occupancyType OccupancyType
 
   startDate DateTime
   endDate   DateTime?

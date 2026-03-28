@@ -128,6 +128,7 @@ export class TenantService {
           buildingId: room.buildingId,
           agreedRent: dto.agreedRent,
           startDate: new Date(),
+          occupancyType: dto.occupancyType,
         },
       });
 

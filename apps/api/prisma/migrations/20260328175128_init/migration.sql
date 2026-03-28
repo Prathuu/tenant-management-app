@@ -5,6 +5,9 @@ CREATE TYPE "WaterSource" AS ENUM ('MUNICIPAL', 'BOREWELL', 'BOTH');
 CREATE TYPE "PersonRelation" AS ENUM ('SELF', 'SPOUSE', 'CHILD', 'PARENT', 'SIBLING', 'OTHER');
 
 -- CreateEnum
+CREATE TYPE "OccupancyType" AS ENUM ('SINGLE', 'SHARED', 'FAMILY');
+
+-- CreateEnum
 CREATE TYPE "InvoiceStatus" AS ENUM ('UNPAID', 'PARTIAL', 'PAID');
 
 -- CreateEnum
@@ -136,6 +139,7 @@ CREATE TABLE "TenantRoom" (
     "tenantId" INTEGER NOT NULL,
     "roomId" INTEGER NOT NULL,
     "buildingId" INTEGER NOT NULL,
+    "occupancyType" "OccupancyType" NOT NULL,
     "startDate" TIMESTAMP(3) NOT NULL,
     "endDate" TIMESTAMP(3),
     "agreedRent" DOUBLE PRECISION NOT NULL,

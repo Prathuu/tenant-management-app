@@ -6,4 +6,6 @@ export class AssignRoomDto {
 
   @IsNumber()
   agreedRent: number;
+
+  occupancyType: 'SINGLE' | 'SHARED' | 'FAMILY';
 }

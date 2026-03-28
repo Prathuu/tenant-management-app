@@ -86,6 +86,7 @@ async function createTenantFlow(
   room: any,
   building: any,
   organizationId: number,
+  occupancyType: OccupancyType,
 ) {
   const tenant = await prisma.tenant.create({
     data: {
@@ -105,17 +106,13 @@ async function createTenantFlow(
 
   const tenantRoom = await prisma.tenantRoom.create({
     data: {
-      tenantId: tenant.id,
-      roomId: room.id,
+      tenant: { connect: { id: tenant.id } },
+      room: { connect: { id: room.id } },
       buildingId: building.id,
       agreedRent: room.baseRent,
       startDate: monthsAgo(6),
+      occupancyType,
     },
-  });
-
-  await prisma.room.update({
-    where: { id: room.id },
-    data: { isOccupied: true },
   });
 
   const lease = await prisma.lease.create({
@@ -192,7 +189,6 @@ async function createTenantFlow(
   return tenant;
 }
 
-// ✅ NEW: family helper
 async function createFamilyFlow(
   tenantName: string,
   room: any,
@@ -206,6 +202,7 @@ async function createFamilyFlow(
     room,
     building,
     organizationId,
+    OccupancyType.FAMILY,
   );
 
   const familySize = 2 + Math.floor(Math.random() * 2);
@@ -268,20 +265,12 @@ async function createBuildingSystem(
 
   for (const floor of floors) {
     for (let r = 1; r <= 4; r++) {
-      const occupancyType =
-        Math.random() > 0.7
-          ? OccupancyType.FAMILY
-          : Math.random() > 0.4
-            ? OccupancyType.SHARED
-            : OccupancyType.SINGLE;
-
       const room = await prisma.room.create({
         data: {
           roomNumber: `${floor.code}${String(r).padStart(2, '0')}`,
           baseRent: 15000 + floor.code * 5000,
           floorId: floor.id,
           buildingId: building.id,
-          occupancyType,
         },
       });
 
@@ -301,16 +290,24 @@ async function createBuildingSystem(
       continue;
     }
 
-    if (room.occupancyType === OccupancyType.SINGLE) {
+    const occupancyType =
+      Math.random() > 0.7
+        ? OccupancyType.FAMILY
+        : Math.random() > 0.4
+          ? OccupancyType.SHARED
+          : OccupancyType.SINGLE;
+
+    if (occupancyType === OccupancyType.SINGLE) {
       await createTenantFlow(
         tenants[i],
         `90000000${i}`,
         room,
         building,
         org.id,
+        OccupancyType.SINGLE,
       );
       i++;
-    } else if (room.occupancyType === OccupancyType.SHARED) {
+    } else if (occupancyType === OccupancyType.SHARED) {
       const groupSize = 2;
 
       for (let j = 0; j < groupSize; j++) {
@@ -322,6 +319,7 @@ async function createBuildingSystem(
           room,
           building,
           org.id,
+          OccupancyType.SHARED,
         );
       }
 
@@ -340,22 +338,9 @@ async function main() {
     },
   });
 
-  BUILDINGS.forEach(async (b) => {
+  for (const b of BUILDINGS) {
     await createBuildingSystem(org, b.name, b.owner, b.manager, b.tenants);
-  });
-
-  // Create a few additional buildings manually for testing
-
-  // await createBuildingSystem(org, 'Stark Tower', 'Tony Stark', 'Pepper Potts', [
-  //   'Steve Rogers',
-  //   'Natasha Romanoff',
-  //   'Bruce Banner',
-  //   'Thor Odinson',
-  //   'Clint Barton',
-  //   'Wanda Maximoff',
-  //   'Vision',
-  //   'Peter Parker',
-  // ]);
+  }
 
   console.log('🔥 SEED COMPLETE');
 }
