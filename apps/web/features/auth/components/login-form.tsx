@@ -26,6 +26,7 @@ export const LoginForm = () => {
         {...form.register("email")}
         endIcon={<UserRound size={18} />}
       />
+
       <GlassInput
         type="password"
         placeholder="Password"
