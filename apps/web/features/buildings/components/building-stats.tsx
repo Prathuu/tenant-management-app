@@ -1,17 +1,17 @@
 // components/buildings-stats.tsx
 
 import { GlassCard } from "@/components/glass/glass-card";
-import { Building } from "../buildings.types";
+import { Building, BuildingsList } from "../buildings.types";
 
-export const BuildingStats = ({ data }: { data: Building[] }) => {
+export const BuildingStats = ({ data }: { data: BuildingsList[] }) => {
   const totalBuildings = data.length;
-  const totalUnits = data.reduce((acc, b) => acc + b.totalUnits, 0);
-  const occupied = data.reduce((acc, b) => acc + b.occupiedUnits, 0);
-  const vacant = data.reduce((acc, b) => acc + b.vacantUnits, 0);
+  const totalRooms = data.reduce((acc, b) => acc + b.totalRooms, 0);
+  const occupied = data.reduce((acc, b) => acc + b.occupiedRooms, 0);
+  const vacant = data.reduce((acc, b) => acc + b.vacantRooms, 0);
 
   const stats = [
     { label: "Buildings", value: totalBuildings },
-    { label: "Units", value: totalUnits },
+    { label: "Rooms", value: totalRooms },
     { label: "Occupied", value: occupied },
     { label: "Vacant", value: vacant },
   ];

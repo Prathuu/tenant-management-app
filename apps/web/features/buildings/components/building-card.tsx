@@ -14,7 +14,7 @@ export const BuildingCard = ({ building }: { building: Building }) => {
       </div>
 
       <div className="text-sm space-y-1">
-        <p>Units: {building.totalUnits}</p>
+        <p>Rooms: {building.totalUnits}</p>
         <p>Occupied: {building.occupiedUnits}</p>
         <p>Vacant: {building.vacantUnits}</p>
       </div>

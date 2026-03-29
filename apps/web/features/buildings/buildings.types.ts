@@ -8,3 +8,10 @@ export type Building = {
   vacantUnits: number;
   monthlyRevenue: number;
 };
+
+export type BuildingsList = {
+  totalBuildings: number;
+  totalRooms: number;
+  occupiedRooms: number;
+  vacantRooms: number;
+};
