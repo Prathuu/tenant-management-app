@@ -1,9 +1,7 @@
-// components/buildings-stats.tsx
+import { BuildingsListType } from "../buildings.types";
+import BuildingsList from "./buildings-list";
 
-import { GlassCard } from "@/components/glass/glass-card";
-import { Building, BuildingsList } from "../buildings.types";
-
-export const BuildingStats = ({ data }: { data: BuildingsList[] }) => {
+export const BuildingStats = ({ data }: { data: BuildingsListType[] }) => {
   const totalBuildings = data.length;
   const totalRooms = data.reduce((acc, b) => acc + b.totalRooms, 0);
   const occupied = data.reduce((acc, b) => acc + b.occupiedRooms, 0);
@@ -18,12 +16,7 @@ export const BuildingStats = ({ data }: { data: BuildingsList[] }) => {
 
   return (
     <div className="grid grid-cols-4 gap-4">
-      {stats.map((stat) => (
-        <GlassCard key={stat.label} className="p-4">
-          <p className="text-sm text-muted-foreground">{stat.label}</p>
-          <p className="text-2xl font-semibold">{stat.value}</p>
-        </GlassCard>
-      ))}
+      <BuildingsList />
     </div>
   );
 };

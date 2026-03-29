@@ -9,9 +9,10 @@ export type Building = {
   monthlyRevenue: number;
 };
 
-export type BuildingsList = {
+export type BuildingsListType = {
   totalBuildings: number;
   totalRooms: number;
   occupiedRooms: number;
   vacantRooms: number;
+  name: string;
 };
