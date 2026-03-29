@@ -27,12 +27,10 @@ export const AuthForm = () => {
         </div>
 
         {/* Forms (with subtle transition) */}
-        <div className="relative w-full overflow-hidden">
+        <div className="relative w-full">
           <div
-            className={cn(
-              "transition-all duration-300 ease-in-out",
-              "will-change-transform opacity-100",
-            )}
+            key={mode}
+            className="transition-all duration-300 ease-in-out animate-in fade-in slide-in-from-right-5"
           >
             {isLogin ? <LoginForm /> : <RegisterForm />}
           </div>
