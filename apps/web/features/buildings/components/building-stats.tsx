@@ -1,7 +1,11 @@
+import { GlassCard } from "@/components/glass/glass-card";
+import { useBuildings } from "../buildings.hooks";
 import { BuildingsListType } from "../buildings.types";
+import { BuildingCard } from "./building-card";
 import BuildingsList from "./buildings-list";
 
-export const BuildingStats = ({ data }: { data: BuildingsListType[] }) => {
+export const BuildingStats = () => {
+  const { data = [] }: { data?: BuildingsListType[] } = useBuildings();
   const totalBuildings = data.length;
   const totalRooms = data.reduce((acc, b) => acc + b.totalRooms, 0);
   const occupied = data.reduce((acc, b) => acc + b.occupiedRooms, 0);
@@ -16,7 +20,12 @@ export const BuildingStats = ({ data }: { data: BuildingsListType[] }) => {
 
   return (
     <div className="grid grid-cols-4 gap-4">
-      <BuildingsList />
+      {stats.map((stat) => (
+        <GlassCard key={stat.label} className="p-4">
+          <p className="text-sm text-muted-foreground">{stat.label}</p>
+          <p className="text-2xl font-semibold">{stat.value}</p>
+        </GlassCard>
+      ))}
     </div>
   );
 };
