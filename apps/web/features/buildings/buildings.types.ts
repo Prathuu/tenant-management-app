@@ -10,6 +10,7 @@ export type Building = {
 };
 
 export type BuildingsListType = {
+  id: string;
   totalBuildings: number;
   totalRooms: number;
   occupiedRooms: number;
