@@ -36,9 +36,10 @@ enum OccupancyType {
 }
 
 enum InvoiceStatus {
-  UNPAID
+  PENDING
   PARTIAL
   PAID
+  OVERDUE
 }
 
 enum PaymentType {
@@ -54,6 +55,7 @@ enum PaymentStatus {
   PENDING
   SUCCESS
   FAILED
+  REFUNDED
 }
 
 enum MaintenancePriority {
@@ -72,6 +74,7 @@ enum MaintenanceStatus {
 
 enum LeaseStatus {
   ACTIVE
+  NOTICE
   ENDED
   TERMINATED
 }
@@ -88,7 +91,7 @@ enum MeterType {
 }
 
 // ===============================
-// MULTI TENANT (SaaS CORE)
+// ORGANIZATION (SaaS Core)
 // ===============================
 
 model Organization {
@@ -99,7 +102,7 @@ model Organization {
   updatedAt DateTime @updatedAt
 
   users     User[]
-  tenants Tenant[]
+  tenants   Tenant[]
   buildings Building[]
 
   @@index([name])
@@ -111,7 +114,7 @@ model Organization {
 
 model User {
   id       Int    @id @default(autoincrement())
-  email    String @unique
+  email    String
   password String
   name     String
 
@@ -126,6 +129,7 @@ model User {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
+  @@unique([organizationId, email])
   @@index([organizationId])
 }
 
@@ -192,23 +196,20 @@ model Room {
   floor    Floor    @relation(fields: [floorId], references: [id])
   building Building @relation(fields: [buildingId], references: [id])
 
-  isOccupied Boolean @default(false)
-
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   deletedAt DateTime?
 
-  tenantRooms TenantRoom[]
-  meters      Meter[]
+  leases Lease[]
+  meters Meter[]
   maintenanceRequests MaintenanceRequest[]
 
   @@unique([floorId, roomNumber])
   @@index([buildingId])
-  @@index([isOccupied])
 }
 
 // ===============================
-// TENANT & OCCUPANCY
+// TENANT
 // ===============================
 
 model Tenant {
@@ -220,6 +221,7 @@ model Tenant {
 
   organizationId Int
   organization Organization @relation(fields: [organizationId], references: [id])
+
   user User?
 
   createdAt DateTime @default(now())
@@ -227,7 +229,7 @@ model Tenant {
   deletedAt DateTime?
 
   persons Person[]
-  tenantRooms TenantRoom[]
+  leases Lease[]
   invoices Invoice[]
   payments Payment[]
   maintenanceRequests MaintenanceRequest[]
@@ -252,7 +254,11 @@ model Person {
   @@index([tenantId])
 }
 
-model TenantRoom {
+// ===============================
+// 🔥 LEASE (SOURCE OF TRUTH)
+// ===============================
+
+model Lease {
   id Int @id @default(autoincrement())
 
   tenantId Int
@@ -261,38 +267,20 @@ model TenantRoom {
 
   tenant Tenant @relation(fields: [tenantId], references: [id])
   room   Room   @relation(fields: [roomId], references: [id])
-  occupancyType OccupancyType
-
-  startDate DateTime
-  endDate   DateTime?
-
-  agreedRent Float
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  leases Lease[]
-
-  @@index([tenantId])
-  @@index([roomId, endDate])
-  @@index([buildingId])
-}
-
-// ===============================
-// LEASE SYSTEM
-// ===============================
-
-model Lease {
-  id Int @id @default(autoincrement())
-
-  tenantRoomId Int
-  tenantRoom TenantRoom @relation(fields: [tenantRoomId], references: [id])
 
   rentAmount    Float
   depositAmount Float
 
   startDate DateTime
   endDate   DateTime?
+
+  billingCycleDay Int
+
+  // 🔔 NOTICE SYSTEM
+  noticeGivenAt DateTime?
+  noticePeriodDays Int @default(30)
+  expectedMoveOutDate DateTime?
+  actualMoveOutDate   DateTime?
 
   status LeaseStatus
 
@@ -301,7 +289,81 @@ model Lease {
 
   invoices Invoice[]
 
-  @@index([tenantRoomId])
+  @@index([tenantId])
+  @@index([roomId])
+  @@index([buildingId])
+}
+
+// ===============================
+// BILLING SYSTEM
+// ===============================
+
+model Invoice {
+  id Int @id @default(autoincrement())
+
+  tenantId Int
+  tenant Tenant @relation(fields: [tenantId], references: [id])
+
+  leaseId Int
+  lease Lease @relation(fields: [leaseId], references: [id])
+
+  billingStart DateTime
+  billingEnd   DateTime
+
+  dueDate DateTime
+
+  subtotal Float
+  totalAmount Float
+
+  paidAmount Float @default(0)
+
+  status InvoiceStatus
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  items InvoiceItem[]
+  payments Payment[]
+
+  @@index([tenantId])
+  @@index([leaseId])
+}
+
+model InvoiceItem {
+  id Int @id @default(autoincrement())
+
+  invoiceId Int
+  invoice   Invoice @relation(fields: [invoiceId], references: [id])
+
+  description String
+  amount      Float
+  type        PaymentType
+}
+
+model Payment {
+  id Int @id @default(autoincrement())
+
+  tenantId Int
+  tenant   Tenant @relation(fields: [tenantId], references: [id])
+
+  invoiceId Int?
+  invoice   Invoice? @relation(fields: [invoiceId], references: [id])
+
+  amount Float
+
+  type   PaymentType
+  status PaymentStatus
+
+  transactionId String?
+  notes         String?
+
+  paymentDate DateTime @default(now())
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([tenantId])
+  @@index([invoiceId])
 }
 
 // ===============================
@@ -343,75 +405,6 @@ model MeterReading {
 }
 
 // ===============================
-// BILLING SYSTEM
-// ===============================
-
-model Invoice {
-  id Int @id @default(autoincrement())
-
-  tenantId Int
-  tenant Tenant @relation(fields: [tenantId], references: [id])
-
-  leaseId Int
-  lease Lease @relation(fields: [leaseId], references: [id])
-
-  billingMonth Int
-  billingYear Int
-
-  dueDate DateTime
-
-  subtotal Float
-  totalAmount Float
-
-  status InvoiceStatus
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  items InvoiceItem[]
-  payments Payment[]
-
-  @@index([tenantId, billingMonth, billingYear])
-}
-
-model InvoiceItem {
-  id Int @id @default(autoincrement())
-
-  invoiceId Int
-  invoice   Invoice @relation(fields: [invoiceId], references: [id])
-
-  description String
-  amount      Float
-  type        PaymentType
-}
-
-model Payment {
-  id Int @id @default(autoincrement())
-
-  tenantId Int
-  tenant   Tenant @relation(fields: [tenantId], references: [id])
-
-  invoiceId Int?
-  invoice   Invoice? @relation(fields: [invoiceId], references: [id])
-
-  amount Float
-
-  type   PaymentType
-  status PaymentStatus
-
-  transactionId String?
-  notes         String?
-
-  paymentDate DateTime @default(now())
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@index([tenantId])
-  @@index([invoiceId])
-}
-
-// ===============================
 // MAINTENANCE
 // ===============================
 
@@ -437,7 +430,7 @@ model MaintenanceRequest {
 }
 
 // ===============================
-// ANALYTICS / DASHBOARD
+// ANALYTICS
 // ===============================
 
 model BuildingStats {
